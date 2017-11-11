@@ -9,7 +9,9 @@
 ```
 
 ## Testing environment
+```
 system: ubuntu-17.2.0
+```
 
 ## Project catalog:
 ```
