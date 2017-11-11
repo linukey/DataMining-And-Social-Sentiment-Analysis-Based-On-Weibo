@@ -12,9 +12,11 @@
 system: ubuntu-17.2.0
 
 ## Project catalog:
+```
 1.Docker: to create project by Docker
 2.Run: the script to run and control the project
 3.SourceProject: the crawler project
+```
 
 ## Project architecture
 <img src="./GitHub-Info/img/project-architecture.png" />
