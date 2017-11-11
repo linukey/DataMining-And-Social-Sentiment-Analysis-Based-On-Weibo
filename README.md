@@ -21,7 +21,9 @@ system: ubuntu-17.2.0
 ```
 
 ## Project architecture
+```
 <img src="./GitHub-Info/img/project-architecture.png" />
+```
 
 ## current progress:
 ```
