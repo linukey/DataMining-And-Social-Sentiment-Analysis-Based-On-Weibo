@@ -1,4 +1,4 @@
-# DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo(基于微博的数据挖掘与社交舆情分析)
+# 基于微博的数据挖掘与社交舆情分析
 
 This project consists of four parts:
 1. Crawl weibo data, contain comment、userinfo etc...
