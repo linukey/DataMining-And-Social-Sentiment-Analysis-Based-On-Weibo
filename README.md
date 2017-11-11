@@ -22,9 +22,10 @@ system: ubuntu-17.2.0
 <img src="./GitHub-Info/img/project-architecture.png" />
 
 ## current progress:
+```
 ---Initially completed weibo-comment spider
 ---Initially completed distributed spider base docker
-
+```
 
 ===========================================================
 now, the project has just begun, if you want to join us, 
