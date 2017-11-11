@@ -9,7 +9,6 @@ def get_redis_from_settings(settings):
     params = defaults.REDIS_PARAMS.copy()
     params.update(settings.getdict('REDIS_PARAMS'))
 
-    # Allow ``redis_cls`` to be a path to a class.
     if isinstance(params.get('redis_cls'), six.string_types):
         params['redis_cls'] = load_object(params['redis_cls'])
 

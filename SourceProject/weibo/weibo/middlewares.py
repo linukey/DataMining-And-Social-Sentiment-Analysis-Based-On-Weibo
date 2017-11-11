@@ -9,7 +9,7 @@ from scrapy import signals
 
 class WeiboDownloadMiddleware(object):
     def process_request(self, request, spider):  
-        request.meta["proxy"]= "http://118.213.221.253:8110"
+        #request.meta["proxy"]= "http://118.213.221.253:8110"
 
 class WeiboSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,
