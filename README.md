@@ -1,4 +1,4 @@
-# 基于微博的数据挖掘与社交舆情分析
+# <div style="text-align:center">基于微博的数据挖掘与社交舆情分析</div>
 
 ## This project consists of four parts:
 ```
