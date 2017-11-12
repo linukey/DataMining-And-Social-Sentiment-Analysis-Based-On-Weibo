@@ -5,6 +5,7 @@
 */
 
 #include "../include/webserver.h"
+#include "../include/request.h"
 
 using namespace std;
 using namespace boost::asio;
@@ -58,11 +59,19 @@ void WebServer::read_handle(shared_socket sock, char *buff, const e_code& err, s
         return;
     }
 
-    string info(buff, size);
+    string request(buff, size);
     delete[] buff;
 
+    // response to client
+    response(sock, request);
+
+    sock->close();
+}
+
+void WebServer::response(shared_socket sock, std::string request){  
+    // unpack request data split '&'
     vector<string> v_data;
-    string request_data = info.substr(info.find("\r\n\r\n")+4);
+    string request_data = request.substr(request.find("\r\n\r\n") + 4);
     if (request_data.length()){
         size_t pos = string::npos;
         size_t pre = 0;
@@ -72,11 +81,11 @@ void WebServer::read_handle(shared_socket sock, char *buff, const e_code& err, s
         }
         v_data.push_back(request_data.substr(pre+1));
     }
-
+    // response base request_exec
     for (auto data : v_data){   
         string key = data.substr(0, data.find('='));
         string value = data.substr(data.find('=')+1);
-        if (key == "exec"){ 
+        if (key == REQUEST_EXEC[GET_PROXY]){ 
             if (value == "getproxy"){   
                 string header = "HTTP/1.1 404 OK\r\n";
                 header += "Connection: close\r\n";
@@ -87,13 +96,4 @@ void WebServer::read_handle(shared_socket sock, char *buff, const e_code& err, s
             }
         }
     }
-
-    sock->close();
-    /*
-    char *next_buff = new char[buffer_size];
-    async_read(*sock, 
-               buffer(next_buff, buffer_size), 
-               bind(&WebServer::read_complete, this, next_buff, _1, _2),
-               bind(&WebServer::read_handle, this, sock, next_buff, _1, _2));
-    */
 }

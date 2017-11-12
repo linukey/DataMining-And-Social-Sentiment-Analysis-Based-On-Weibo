@@ -24,13 +24,18 @@ private:
     boost::asio::ip::tcp::acceptor ACCEPTOR;
     const int buffer_size = 100000;
 
-public:
-    void run();    
+private:
     void accept_handle(shared_socket sock, const e_code& err);
     size_t read_complete(char *buff, const e_code& err, size_t size);
     void write_handle(const e_code& err, size_t size);
     void write_some(shared_socket sock, std::string message);
     void read_handle(shared_socket sock, char *buff, const e_code& err, size_t size);
+
+private:
+    void response(shared_socket sock, std::string request);
+
+public:
+    void run();
 };
 
 } // namespace webserver
