@@ -6,10 +6,31 @@
 
 #include "../include/webserver.h"
 #include "../include/request.h"
+#include <fstream>
+#include <set>
 
 using namespace std;
 using namespace boost::asio;
 using namespace linukey::webserver;
+
+WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
+    fstream fin("./proxy_ip");
+    set<string> proxy_pool;
+    if (fin.is_open()) {
+        char buff[1024];
+        while(!fin.eof()){  
+            fin.getline(buff, sizeof(buff));
+            string ip(buff);
+            if (ip.length()){   
+                proxy_pool.insert(ip);
+            }
+        }
+    } else throw string("not find proxy_ip!");
+    set<string>::iterator it = proxy_pool.begin();
+    for (; it != proxy_pool.end(); ++it){   
+        proxy_unuse_pool.push(*it);
+    }
+}
 
 void WebServer::run(){    
     shared_socket sock(new ip::tcp::socket(SERVICE));
@@ -82,11 +103,13 @@ void WebServer::response(shared_socket sock, std::string request){
         v_data.push_back(request_data.substr(pre+1));
     }
     // response base request_exec
+    string client_id;
+    string ip;
     for (auto data : v_data){   
         string key = data.substr(0, data.find('='));
         string value = data.substr(data.find('=')+1);
-        if (key == REQUEST_EXEC[GET_PROXY]){ 
-            if (value == "getproxy"){   
+        if (key == "exec"){ 
+            if (value == REQUEST_EXEC[GET_PROXY]){   
                 string header = "HTTP/1.1 404 OK\r\n";
                 header += "Connection: close\r\n";
                 header += "\r\n";
@@ -94,6 +117,15 @@ void WebServer::response(shared_socket sock, std::string request){
                 string response = header + data;
                 write_some(sock, header + response);
             }
+        } else if (key == "client_id") {    
+            client_id = value;
         }
     }
+
+    client_ip[client_id] = ip;
+}
+
+//use a file store ip temporary
+string WebServer::get_ip(){   
+    return "";
 }
