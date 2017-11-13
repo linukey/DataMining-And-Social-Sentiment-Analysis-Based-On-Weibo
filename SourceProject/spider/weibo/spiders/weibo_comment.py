@@ -31,12 +31,18 @@ class WeiboComment(RedisSpider):
             return
 
         if number > range_start:
-            jsonData = json.loads(response.body)
+            print(response.body)
+            item = WeiboCommentItem()
+            item['html'] = response.body
+            yield item
+            '''
+            jsonData = json.loads(response.body.decode('utf-8'))
             item = WeiboCommentItem()
             for data in jsonData['data']:
                 item['comment'] = data['text']
                 item['phone'] = data['source']
                 yield item
+            '''
 
         #如果小于范围开始，去到开始的地方
         if number < range_start:
