@@ -11,8 +11,12 @@ using namespace std;
 using namespace linukey::webserver;
 
 int main(){
-    WebServer webserver;
-    webserver.run();
+    try{
+        WebServer webserver;
+        webserver.run();
+    } catch (string ex) {
+        cerr << ex << endl;
+    }
     
     return 0;
 }
