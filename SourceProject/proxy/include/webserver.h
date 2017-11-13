@@ -11,6 +11,7 @@
 #include <queue>
 #include <fstream>
 #include <map>
+#include <set>
 
 namespace linukey{  
 namespace webserver{    
@@ -31,6 +32,7 @@ private:
     * two question:
     * 1. Guarantee each ip average usage time
     * 2. Guarantee will not have more than one client using an ip
+    * 3. if client is more than ip, removed more client to wiat queue
     * 
     * there use two queue to solve first question
     * there use a map that remember which client use which ip, to solve second question
@@ -38,9 +40,9 @@ private:
     * when a client request a ip, give this client one ip, and use the map to remember this client and ip
     * when this client request a new ip, to freed this ip from proxy_use_pool to proxy_unuse_pool
     */
-    std::queue<std::string> proxy_use_pool;
     std::queue<std::string> proxy_unuse_pool;
-    std::map<std::string, std::string> client_ip;
+    std::map<std::string, std::string> proxy_client_ip;
+    std::queue<pair<shared_socket, string>> wait_client;
 
 private:
     void accept_handle(shared_socket sock, const e_code& err);
@@ -51,7 +53,7 @@ private:
 
 private:
     void response(shared_socket sock, std::string request);
-    std::string get_ip();
+    std::string get_ip(const std::string& client_id);
 
 public:
     void run();

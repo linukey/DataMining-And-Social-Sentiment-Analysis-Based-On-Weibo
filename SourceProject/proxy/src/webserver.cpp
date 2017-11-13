@@ -102,30 +102,60 @@ void WebServer::response(shared_socket sock, std::string request){
         }
         v_data.push_back(request_data.substr(pre+1));
     }
-    // response base request_exec
+
     string client_id;
-    string ip;
+    string exec;
     for (auto data : v_data){   
         string key = data.substr(0, data.find('='));
         string value = data.substr(data.find('=')+1);
         if (key == "exec"){ 
-            if (value == REQUEST_EXEC[GET_PROXY]){   
-                string header = "HTTP/1.1 404 OK\r\n";
-                header += "Connection: close\r\n";
-                header += "\r\n";
-                string data = "this is a proxy";
-                string response = header + data;
-                write_some(sock, header + response);
-            }
+            exec = value;
         } else if (key == "client_id") {    
             client_id = value;
         }
     }
 
-    client_ip[client_id] = ip;
+    // response base request_exec
+    if (exec == REQUEST_EXEC[GET_PROXY]){   
+        string header = "HTTP/1.1 200 OK\r\n";
+        header += "Connection: close\r\n";
+        header += "\r\n";
+
+        string data = get_ip(client_id);
+        if (data.empty()){  
+            wait_client.push(pair<shared_socket, string>(sock, client_id));
+            continue;
+        }
+
+        string response = header + data;
+        write_some(sock, header + response);
+    }
 }
 
-//use a file store ip temporary
-string WebServer::get_ip(){   
-    return "";
+string WebServer::get_ip(const string& client_id){   
+    string ip = proxy_client_ip[client_id];
+
+    // put the ip not use into the pool
+    if (!ip.empty()) {    
+        proxy_unuse_pool.push(ip);
+        proxy_client_ip[client_id].clear();
+
+        if (!wait_client.empty()){  
+            string header = "HTTP/1.1 200 OK\r\n";
+            header += "Connection: close\r\n";
+            header += "\r\n";
+
+            string data = proxy_unuse_pool.front();
+            proxy_unuse_pool.pop();
+
+            string response = header + data;
+            write_some(sock, header + response);
+        }
+    }
+    if (proxy_unuse_pool.empty()){
+        return "";
+    }
+    string top = proxy_unuse_pool.front();
+    proxy_unuse_pool.pop();
+    return proxy_client_ip[client_id] = top;
 }
