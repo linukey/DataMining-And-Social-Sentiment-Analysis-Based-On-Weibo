@@ -15,18 +15,10 @@ def get_proxy():
         ('showapi_sign', showapi_sign)
     ])
 
-    headers = {
-        "User-Agent":"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36",
-        "Accept-Language":"zh-CN,zh;q=0.8,zh-TW;q=0.6",
-        "Accept-Encoding":"gzip, deflate, br",
-        "Connection":"close"
-    }
-
     proxy = []
-     
-    req = request.Request(url, headers=headers, data=send_data.encode('utf-8'))
+    req = request.Request(url)
     try:
-        response = request.urlopen(req, timeout=10)
+        response = request.urlopen(req, data=send_data.encode('utf-8'), timeout=10)
         result = response.read().decode('utf-8')
         jsondata = json.loads(result)
 
@@ -36,10 +28,9 @@ def get_proxy():
                 ip = str(info['ip'])
                 port = str(info['port'])
                 proxy.append(ip + ":" + port)
-
+    
     except Exception as e:
         print(e)
-
     return proxy
 
 
@@ -60,18 +51,17 @@ def ip_available(proxy):
 
 
 # meet 20 available ip
-if __name__ == '__main__':
+def update_proxy_ip(proxy_num, proxy_path):
     proxy_pool = set()
-
-    # old_proxy
+    
+    # load the exists proxy
+    os.system("echo \033[33m[ load the exisits proxy ]\033[0m")
     old_proxy = []
-    file = open('../proxy_ip')
+    file = open(proxy_path)
     for proxy in file.readlines():
         old_proxy.append(proxy)
     file.close()
-
-    os.system("echo \033[32m[" + "================old================" + "]\033[0m")
-
+    # test the exists proxy
     for proxy in old_proxy:
         proxy = proxy.split('\n')[0]
         if ip_available("http://" + proxy):
@@ -80,19 +70,17 @@ if __name__ == '__main__':
         else:
             print(proxy + " is not available!")
 
-    os.system("echo \033[32m[" + "================end================" + "]\033[0m")
-
-    os.system("echo \033[32m[" + "================new================" + "]\033[0m")
-
+    # request the new proxy and test the new proxy
+    os.system("echo \033[33m[ request the new proxy ]\033[0m")
     number = 0;
-    while len(proxy_pool) < 20:
+    while len(proxy_pool) < proxy_num:
         number += 1;
         if number > 10:
             break
         # new_proxy
         new_proxy = get_proxy()
         for proxy in new_proxy:
-            if len(proxy_pool) >= 20:
+            if len(proxy_pool) >= proxy_num:
                 break
             if ip_available("http://" + proxy):
                 proxy_pool.add(proxy)
@@ -102,27 +90,12 @@ if __name__ == '__main__':
 
         time.sleep(10)
 
-    os.system("echo \033[32m[" + "================end================" + "]\033[0m")
-
-    os.system("rm ../proxy_ip")
-    os.system("touch ../proxy_ip")
-    file = open('../proxy_ip', 'w')
+    # write the proxy_result into proxy_ip
+    file = open(proxy_path, 'w')
     for proxy in proxy_pool:
         file.write(proxy+'\n')
     file.close()
-    
-    os.system("echo \033[32m[" + "proxy task complete!" + "]\033[0m")
+    print("\n\n")
+    os.system("echo \033[32m[" + "update proxy success!" + "]\033[0m")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    return len(proxy_pool)
