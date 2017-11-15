@@ -15,6 +15,7 @@
 #include <fstream>
 #include <map>
 #include <set>
+#include "../../proxymanager/cpp/include/proxymanager.h"
 
 namespace linukey{  
 namespace webserver{    
@@ -32,23 +33,10 @@ public:
 private:
     boost::asio::ip::tcp::acceptor ACCEPTOR;
     const int buffer_size = 100000;
-
-    /*
-    * two question:
-    * 1. Guarantee each ip average usage time
-    * 2. Guarantee will not have more than one client using an ip
-    * 3. if client is more than ip, removed more client to wiat queue
-    * 
-    * Solve first: there use a queue proxy_unuse_pool to solve first question, the latest use ip was push queue_back
-    * Solve second: there use a map proxy_client_ip that remember which client use which ip, to solve second question
-    *   >when a client request a ip, give this client one ip, and use the map to remember this client and ip
-    *   >when this client request a new ip, to freed this ip from proxy_use_pool to proxy_unuse_pool
-    * Solve third: there use a sock wait_queue to solve the third question
-    *   >when a new sock request a ip and ip empty, let this sock to wait_queue, when there has a new ip, pop the sock and give ip
-    */
-    std::queue<std::string> proxy_unuse_pool;
-    std::map<std::string, std::string> proxy_client_ip;
-    std::queue<std::pair<shared_socket, std::string>> wait_client;
+    // key=client_id; value=ProxyManager
+    std::map<std::string, linukey::proxy::ProxyManager*> proxymanager_pool;
+    // key=client_id; value=live_time
+    std::map<std::string, int> clientmanager_pool;
 
 private:
     void accept_handle(shared_socket sock, const e_code& err);
@@ -59,7 +47,6 @@ private:
 
 private:
     void response(shared_socket sock, std::string request);
-    std::string get_ip(const std::string& client_id);
     void log(const std::string& message);
 
 public:

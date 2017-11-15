@@ -13,28 +13,9 @@ using namespace std;
 using namespace boost::asio;
 using namespace linukey::webserver;
 using namespace linukey::webserver::request;
+using namespace linukey::proxy;
 
-WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
-    // init the proxy_unuse_pool
-    fstream fin("../proxy_ip");
-    set<string> proxy_pool;
-    if (fin.is_open()) {
-        char buff[1024];
-        while(!fin.eof()){  
-            fin.getline(buff, sizeof(buff));
-            string ip(buff);
-            if (ip.length()){   
-                proxy_pool.insert(ip);
-            }
-        }
-    // if not find proxy_ip, throw a exception
-    } else throw string("not find proxy_ip!");
-
-    set<string>::iterator it = proxy_pool.begin();
-    for (; it != proxy_pool.end(); ++it){   
-        proxy_unuse_pool.push(*it);
-    }
-}
+WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {}
 
 void WebServer::run(){    
     shared_socket sock(new ip::tcp::socket(SERVICE));
@@ -88,7 +69,7 @@ void WebServer::read_handle(shared_socket sock, char *buff, const e_code& err, s
 
     // response to client
     response(sock, request);
-
+	// http_request, must close
     sock->close();
 }
 
@@ -111,6 +92,7 @@ void WebServer::response(shared_socket sock, std::string request){
     // split data k-v by '='
     string client_id;
     string exec;
+    bool is_pre_valid;
     for (auto data : v_data){   
         string key = data.substr(0, data.find('='));
         string value = data.substr(data.find('=')+1);
@@ -118,58 +100,29 @@ void WebServer::response(shared_socket sock, std::string request){
             exec = value;
         } else if (key == "client_id") {    
             client_id = value;
+        } else if (key == "is_pre_valid"){
+            if (value == "0") is_pre_valid = false;
+            else is_pre_valid = true;
         }
+    }
+
+    // if first request, distribution proxymanager and remember
+    if (clientmanager_pool.count(client_id) == 0){
+        clientmanager_pool[client_id] = 1;   
+        proxymanager_pool[client_id] = new ProxyManager(5, 2, 
+        "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxy_ip",
+        "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxymanager/py/");
+    // if not first, refresh live_time
+    } else {
+        clientmanager_pool[client_id] = 1;
     }
 
     // response base request_exec
     if (exec == REQUEST_EXEC[GET_PROXY]){   
-        string data = get_ip(client_id);
-        if (data.empty()){  
-            wait_client.push(pair<shared_socket, string>(sock, client_id));
-            return;
-        }
-
-        string response = HEADER + data;
+        string proxy = proxymanager_pool[client_id]->get_ip(is_pre_valid);
+        string response = HEADER + proxy;
         write_some(sock, response);
     }
-}
-
-string WebServer::get_ip(const string& client_id){   
-    string ip = proxy_client_ip[client_id];
-
-    // put the ip not use into the pool
-    if (!ip.empty()) {    
-        proxy_unuse_pool.push(ip);
-        proxy_client_ip[client_id].clear();
-
-        // if there has a wait sock
-        if (!wait_client.empty()){  
-            string data = proxy_unuse_pool.front();
-            proxy_unuse_pool.pop();
-
-            string response = HEADER + data;
-
-            // pop this sock from wait queue
-            shared_socket sock = wait_client.front().first;
-            string client_id = wait_client.front().second;
-            wait_client.pop();
-
-            // push this sock & ip into proxy_client_ip
-            proxy_client_ip[client_id] = data;
-
-            write_some(sock, response);
-        }
-    }
-
-    // if ip empty, return empty
-    if (proxy_unuse_pool.empty()){
-        return "";
-    }
-
-    // if has ip, return and push into proxy_client_ip
-    string top = proxy_unuse_pool.front();
-    proxy_unuse_pool.pop();
-    return proxy_client_ip[client_id] = top;
 }
 
 void WebServer::log(const string& message){
