@@ -6,6 +6,9 @@ import os
 import time
 
 def get_proxy():
+	# this is my appid and sign, my ip has been added to the server whitelist
+	# so, i can use this appid and sign
+	# if you want to get your, to this url: https://www.showapi.com/api/lookPoint/22/1#price
     showapi_appid = "49824"
     showapi_sign = "6e1680fb4ab2468aac8e2c138b7b108a"
 
