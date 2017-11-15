@@ -69,6 +69,7 @@ void WebServer::read_handle(shared_socket sock, char *buff, const e_code& err, s
 
     // response to client
     response(sock, request);
+
 	// http_request, must close
     sock->close();
 }
@@ -112,6 +113,11 @@ void WebServer::response(shared_socket sock, std::string request){
         proxymanager_pool[client_id] = new ProxyManager(5, 2, 
         "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxy_ip",
         "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxymanager/py/");
+		// init proxyfile
+		proxymanager_pool[client_id]->update_proxyfile();
+		// init proxypool
+		proxymanager_pool[client_id]->init_proxypool();
+
     // if not first, refresh live_time
     } else {
         clientmanager_pool[client_id] = 1;
