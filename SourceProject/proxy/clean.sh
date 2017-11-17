@@ -4,6 +4,5 @@ echo "\033[33m[=============================clean===============================
 make -C proxymanager/cpp clean
 make -C webserver clean
 rm run_server
-echo "\033[33m[===================================================================]\033[0m"
-
 echo must to delete the ld_config in the $HOME/.bashrc by yourself
+echo "\033[33m[===================================================================]\033[0m"

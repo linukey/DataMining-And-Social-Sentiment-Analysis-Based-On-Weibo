@@ -4,6 +4,7 @@ from urllib import request, parse
 import json
 import os
 import time
+import requests
 
 def get_proxy():
 	# this is my appid and sign, my ip has been added to the server whitelist
@@ -24,7 +25,6 @@ def get_proxy():
         response = request.urlopen(req, data=send_data.encode('utf-8'), timeout=10)
         result = response.read().decode('utf-8')
         jsondata = json.loads(result)
-
         for info in jsondata["showapi_res_body"]["pagebean"]["contentlist"]:
             speed = float(info['speed'])
             if speed < 3:
@@ -33,29 +33,33 @@ def get_proxy():
                 proxy.append(ip + ":" + port)
     
     except Exception as e:
-        #print(e)
-        pass
+        print('exception: ' + e)
+
     return proxy
 
 
 def ip_available(proxy):
     server = proxy
-    
     try:
+        # install the opener
         opener = request.build_opener(request.ProxyHandler({'http':server}))
-        request.install_opener(opener)
-
+        #request.install_opener(opener)
         url = "http://www.baidu.com"
-        response = request.urlopen(url, timeout=3)
-        code = response.getcode()
+        #response = request.urlopen(url, timeout=3)
+        response=opener.open(url, timeout=3)
+        if response is not None:
+            code = response.getcode()
+            return code == 200
+        else:
+            return False
 
-        return code == 200
     except Exception as e:
         pass
 
+    return False
 
 # meet 20 available ip
-def update_proxy_ip(proxy_num, proxy_path):
+def update_proxyfile(proxy_num, proxy_path):
     proxy_pool = set()
     
     # load the exists proxy
@@ -65,15 +69,15 @@ def update_proxy_ip(proxy_num, proxy_path):
     for proxy in file.readlines():
         old_proxy.append(proxy)
     file.close()
+
     # test the exists proxy
     for proxy in old_proxy:
         proxy = proxy.split('\n')[0]
         if ip_available("http://" + proxy):
             proxy_pool.add(proxy)
-            #os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
+            os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
         else:
-            #print(proxy + " is not available!")
-            pass
+            print(proxy + " is not available!")
 
     # request the new proxy and test the new proxy
     os.system("echo \033[33m[ request the new proxy ]\033[0m")
@@ -89,9 +93,9 @@ def update_proxy_ip(proxy_num, proxy_path):
                 break
             if ip_available("http://" + proxy):
                 proxy_pool.add(proxy)
-                #os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
+                os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
             else:
-                #print(proxy + " is not available!")
+                print(proxy + " is not available!")
                 pass
 
         time.sleep(10)
@@ -105,3 +109,6 @@ def update_proxy_ip(proxy_num, proxy_path):
     os.system("echo \033[32m[" + "update proxy success! respect proxy_cnt:" + str(proxy_num) + " actual proxy_cnt:" + str(len(proxy_pool)) + "]\033[0m")
 
     return len(proxy_pool)
+
+if __name__ == '__main__':
+    update_proxyfile(10, "../../proxyfile")

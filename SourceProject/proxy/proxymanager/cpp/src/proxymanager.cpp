@@ -28,8 +28,8 @@ int ProxyManager::init_proxypool(){
                 pp.insert(ip);
             }
         }
-    // if not find proxy_ip, throw a exception
-    } else throw string("not find proxy_ip!");
+    // if not find proxyfile, throw a exception
+    } else throw string("not find proxyfile!");
 
     fin.close();
 
@@ -53,8 +53,8 @@ int ProxyManager::update_proxyfile(){
         return -1;
     }
 
-    PyObject* update_proxy_ip = PyObject_GetAttrString(proxy_update, "update_proxy_ip");
-    if (!update_proxy_ip || !PyCallable_Check(update_proxy_ip)){
+    PyObject* update_proxyfile = PyObject_GetAttrString(proxy_update, "update_proxyfile");
+    if (!update_proxyfile || !PyCallable_Check(update_proxyfile)){
         cerr << "load funtion fail" << endl;    
         return -1;
     }
@@ -66,7 +66,7 @@ int ProxyManager::update_proxyfile(){
     PyTuple_SetItem(args, 0, arg1);
     PyTuple_SetItem(args, 1, arg2);
 
-    PyObject* pRet = PyObject_CallObject(update_proxy_ip, args);
+    PyObject* pRet = PyObject_CallObject(update_proxyfile, args);
     
     if (!pRet){
         cerr << "run fail" << endl;

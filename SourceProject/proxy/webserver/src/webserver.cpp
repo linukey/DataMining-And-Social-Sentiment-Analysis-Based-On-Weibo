@@ -118,7 +118,7 @@ void WebServer::response(shared_socket sock, std::string request){
     // if first request, distribution proxymanager and remember
     if (clientmanager_pool.count(client_id) == 0){
         proxymanager_pool[client_id] = new ProxyManager(5, 2, 
-        "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxy_ip",
+        "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxyfile",
         "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxymanager/py/");
 
 #ifdef WEBSERVER_DEBUG
