@@ -1,7 +1,13 @@
 from weibo.items import WeiboCommentItem
 from scrapy_redis.spiders import RedisSpider
+from scrapy.spiders import Spider, CrawlSpider
+from scrapy.exceptions import DontCloseSpider
+from scrapy import signals
 from scrapy import Request
 import json
+import warnings
+from scrapy.utils.deprecate import method_is_overridden
+from .. import defaults, connection
 
 '''
 微博wise站点评论url样例：https://m.weibo.cn/api/comments/show?id=4160547165300149&page=1
@@ -15,7 +21,20 @@ class WeiboComment(RedisSpider):
     def __init__(self, *args, **kwargs):
         super(WeiboComment, self).__init__(*args, **kwargs)
 
+    def schedule_next_requests(self):
+        print("===================schedule_next_requests======================")
+        """Schedules a request if available"""
+        # TODO: While there is capacity, schedule a batch of redis requests.
+        for req in self.next_requests():
+            try:
+                print("00000000000000000000000000000000000000000000000000000")
+                self.crawler.engine.crawl(req, spider=self)
+                print("11111111111111111111111111111111111111111111111111111")
+            except:
+                print("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=")
+
     def parse(self, response):
+        print("================================================================")
         #控制爬行的范围
         range_start = int(self.settings.get('RANGE_START'))
         range_end = int(self.settings.get('RANGE_END'))
@@ -34,7 +53,7 @@ class WeiboComment(RedisSpider):
             print(response.body)
             item = WeiboCommentItem()
             item['html'] = response.body
-            yield item
+            #yield item
             '''
             jsonData = json.loads(response.body.decode('utf-8'))
             item = WeiboCommentItem()

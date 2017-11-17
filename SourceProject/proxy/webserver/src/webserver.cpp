@@ -23,17 +23,28 @@ void WebServer::run(){
     SERVICE.run();
 }
 
+time_t WebServer::get_now_time(){
+    return time(NULL);
+}
+
 void WebServer::accept_handle(shared_socket sock, const e_code& err){
     if (err){
         log("Fail");
         return;
     }
+    
+#ifdef WEBSERVER_DEBUG
+    ip::tcp::endpoint remote_ep = sock->remote_endpoint();
+    ip::address remote_ad = remote_ep.address();
+    cerr << "主机: " << remote_ad.to_string() << " 请求proxy..." << endl;
+#endif
 
     char *buff = new char[buffer_size];       
     async_read(*sock, 
                buffer(buff, buffer_size), 
                bind(&WebServer::read_complete, this, buff, _1, _2),
                bind(&WebServer::read_handle, this, sock, buff, _1, _2));
+
     run();
 }
 
@@ -93,7 +104,6 @@ void WebServer::response(shared_socket sock, std::string request){
     // split data k-v by '='
     string client_id;
     string exec;
-    bool is_pre_valid;
     for (auto data : v_data){   
         string key = data.substr(0, data.find('='));
         string value = data.substr(data.find('=')+1);
@@ -101,33 +111,52 @@ void WebServer::response(shared_socket sock, std::string request){
             exec = value;
         } else if (key == "client_id") {    
             client_id = value;
-        } else if (key == "is_pre_valid"){
-            if (value == "0") is_pre_valid = false;
-            else is_pre_valid = true;
         }
     }
 
+    bool is_pre_valid = true;
     // if first request, distribution proxymanager and remember
     if (clientmanager_pool.count(client_id) == 0){
-        clientmanager_pool[client_id] = 1;   
         proxymanager_pool[client_id] = new ProxyManager(5, 2, 
         "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxy_ip",
         "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxymanager/py/");
+
+#ifdef WEBSERVER_DEBUG
+        cerr << "this is a new request, update proxyfile and dispach proxymanager..." << endl;
+#endif
 		// init proxyfile
 		proxymanager_pool[client_id]->update_proxyfile();
 		// init proxypool
 		proxymanager_pool[client_id]->init_proxypool();
 
-    // if not first, refresh live_time
+    // if not first, judge pre proxy is valid
     } else {
-        clientmanager_pool[client_id] = 1;
+        // judge the pre proxy is valid or unvalid
+        // if the second > 30, we thank the pre proxy is unvalid
+        time_t now = get_now_time();
+        time_t old = clientmanager_pool[client_id];
+        double second = difftime(now, old);
+        if (second > 30) {
+            is_pre_valid = false;
+#ifdef WEBSERVER_DEBUG
+            cerr << "time > 30s, throw away pre proxy..." << endl;
+#endif
+        } else {
+#ifdef WEBSERVER_DEBUG
+            cerr << "time: " << second << endl;
+#endif
+        }
     }
 
     // response base request_exec
     if (exec == REQUEST_EXEC[GET_PROXY]){   
         string proxy = proxymanager_pool[client_id]->get_ip(is_pre_valid);
         string response = HEADER + proxy;
+        clientmanager_pool[client_id] = get_now_time();
         write_some(sock, response);
+#ifdef WEBSERVER_DEBUG
+        cerr << "响应proxy: " << proxy << endl;
+#endif
     }
 }
 

@@ -79,6 +79,9 @@ string ProxyManager::get_ip(bool is_pre_valid){
     if (!is_pre_valid){
         proxypool.pop();
         if (proxypool.size() < proxy_min){
+#ifdef WEBSERVER_DEBUG
+            cerr << "update proxyfile..." << endl;
+#endif
             update_proxyfile();
         }
     } else {

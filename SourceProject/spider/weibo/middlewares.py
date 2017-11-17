@@ -8,7 +8,7 @@
 from scrapy import signals
 
 class WeiboDownloadMiddleware(object):
-    def process_request(self, request, spider):  
+    def process_request(self, request, spider):
         request.meta["proxy"]= "http://120.25.164.134:8118"
 
 class WeiboSpiderMiddleware(object):

@@ -33,7 +33,8 @@ def get_proxy():
                 proxy.append(ip + ":" + port)
     
     except Exception as e:
-        print(e)
+        #print(e)
+        pass
     return proxy
 
 
@@ -69,9 +70,10 @@ def update_proxy_ip(proxy_num, proxy_path):
         proxy = proxy.split('\n')[0]
         if ip_available("http://" + proxy):
             proxy_pool.add(proxy)
-            os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
+            #os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
         else:
-            print(proxy + " is not available!")
+            #print(proxy + " is not available!")
+            pass
 
     # request the new proxy and test the new proxy
     os.system("echo \033[33m[ request the new proxy ]\033[0m")
@@ -87,9 +89,10 @@ def update_proxy_ip(proxy_num, proxy_path):
                 break
             if ip_available("http://" + proxy):
                 proxy_pool.add(proxy)
-                os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
+                #os.system("echo \033[32m[" + proxy + " is available!" + "]\033[0m")
             else:
-                print(proxy + " is not available!")
+                #print(proxy + " is not available!")
+                pass
 
         time.sleep(10)
 
@@ -99,6 +102,6 @@ def update_proxy_ip(proxy_num, proxy_path):
         file.write(proxy+'\n')
     file.close()
     print("\n\n")
-    os.system("echo \033[32m[" + "update proxy success!" + "]\033[0m")
+    os.system("echo \033[32m[" + "update proxy success! respect proxy_cnt:" + str(proxy_num) + " actual proxy_cnt:" + str(len(proxy_pool)) + "]\033[0m")
 
     return len(proxy_pool)

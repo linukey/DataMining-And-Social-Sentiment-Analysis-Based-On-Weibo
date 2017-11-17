@@ -36,7 +36,7 @@ private:
     // key=client_id; value=ProxyManager
     std::map<std::string, linukey::proxy::ProxyManager*> proxymanager_pool;
     // key=client_id; value=live_time
-    std::map<std::string, int> clientmanager_pool;
+    std::map<std::string, time_t> clientmanager_pool;
 
 private:
     void accept_handle(shared_socket sock, const e_code& err);
@@ -44,6 +44,7 @@ private:
     void write_handle(const e_code& err, size_t size);
     void write_some(shared_socket sock, std::string message);
     void read_handle(shared_socket sock, char *buff, const e_code& err, size_t size);
+    time_t get_now_time();
 
 private:
     void response(shared_socket sock, std::string request);
