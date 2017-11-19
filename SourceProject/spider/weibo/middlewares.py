@@ -6,10 +6,26 @@
 # http://doc.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from . import proxy_request
+import uuid
+from collections import defaultdict
 
 class WeiboDownloadMiddleware(object):
+
+    def __init__(self, *middlewares):
+        self.client_id = uuid.uuid1()
+        self.middlewares = middlewares
+        self.methods = defaultdict(list)
+        for mw in middlewares:
+            self._add_middleware(mw)
+
     def process_request(self, request, spider):
-        request.meta["proxy"]= "http://120.25.164.134:8118"
+        print("==================================================")
+        proxy = proxy_request.get_ip(self.client_id)
+        print(self.client_id)
+        print(proxy)
+        print("==================================================")
+        request.meta["proxy"]= "http://" + proxy
 
 class WeiboSpiderMiddleware(object):
     # Not all methods need to be defined. If a method is not defined,

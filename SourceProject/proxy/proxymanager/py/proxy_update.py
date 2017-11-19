@@ -98,7 +98,7 @@ def update_proxyfile(proxy_num, proxy_path):
                 print(proxy + " is not available!")
                 pass
 
-        time.sleep(10)
+        time.sleep(5)
 
     # write the proxy_result into proxy_ip
     file = open(proxy_path, 'w')

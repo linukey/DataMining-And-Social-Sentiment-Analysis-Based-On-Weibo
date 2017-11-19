@@ -12,29 +12,38 @@ ProxyManager::ProxyManager(int proxy_num,
              string pymodel_path):
 			proxy_num(proxy_num), 
             proxy_min(proxy_min),
-			proxyfile_path(proxyfile_path),
-			pymodel_path(pymodel_path){}
+            proxyfile_path(proxyfile_path),
+			pymodel_path(pymodel_path){
+    // create proxyfile
+    fstream fin(proxyfile_path, ios::app);
+    fin.close();
+}
 
 int ProxyManager::init_proxypool(){
     // init the proxypool
-    fstream fin(proxyfile_path);
     set<string> pp;
-    if (fin.is_open()) {
-        char buff[1024];
-        while(!fin.eof()){  
-            fin.getline(buff, sizeof(buff));
-            string ip(buff);
-            if (ip.length()){   
-                pp.insert(ip);
+    try{
+        fstream fin(proxyfile_path);
+        if (fin.is_open()) {
+            while(!fin.eof()){  
+                char buff[1024];
+                fin.getline(buff, sizeof(buff));
+                string ip(buff);
+                if (ip.length()){
+                    pp.insert(ip);
+                }
             }
-        }
-    // if not find proxyfile, throw a exception
-    } else throw string("not find proxyfile!");
-
-    fin.close();
+        // if not find proxyfile, throw a exception
+        } else throw string("not find proxyfile!");
+        fin.close();
+    } catch (string ex){
+        cerr << ex << endl;
+        return 0;
+    }
+    
 
     set<string>::iterator it = pp.begin();
-    for (; it != pp.end(); ++it){   
+    for (; it != pp.end(); ++it){
         proxypool.push(*it);
     }
 
@@ -83,6 +92,7 @@ string ProxyManager::get_ip(bool is_pre_valid){
             cerr << "update proxyfile..." << endl;
 #endif
             update_proxyfile();
+            init_proxypool();
         }
     } else {
         string proxy = proxypool.front();

@@ -32,7 +32,7 @@ public:
 
 private:
     boost::asio::ip::tcp::acceptor ACCEPTOR;
-    const int buffer_size = 100000;
+    const int buffer_size = 1024;
     // key=client_id; value=ProxyManager
     std::map<std::string, linukey::proxy::ProxyManager*> proxymanager_pool;
     // key=client_id; value=live_time

@@ -117,8 +117,7 @@ void WebServer::response(shared_socket sock, std::string request){
     bool is_pre_valid = true;
     // if first request, distribution proxymanager and remember
     if (clientmanager_pool.count(client_id) == 0){
-        proxymanager_pool[client_id] = new ProxyManager(5, 2, 
-        "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxyfile",
+        proxymanager_pool[client_id] = new ProxyManager(2, 1, client_id,
         "/home/linukey/WorkSpace/DataMining-And-Social-Sentiment-Analysis-Based-On-Weibo/SourceProject/proxy/proxymanager/py/");
 
 #ifdef WEBSERVER_DEBUG
@@ -127,8 +126,8 @@ void WebServer::response(shared_socket sock, std::string request){
 		// init proxyfile
 		proxymanager_pool[client_id]->update_proxyfile();
 		// init proxypool
-		proxymanager_pool[client_id]->init_proxypool();
-
+		int cnt = proxymanager_pool[client_id]->init_proxypool();
+        cout << "update cnt: " << cnt << endl;
     // if not first, judge pre proxy is valid
     } else {
         // judge the pre proxy is valid or unvalid
@@ -149,8 +148,11 @@ void WebServer::response(shared_socket sock, std::string request){
     }
 
     // response base request_exec
-    if (exec == REQUEST_EXEC[GET_PROXY]){   
+    if (exec == REQUEST_EXEC[GET_PROXY]){
         string proxy = proxymanager_pool[client_id]->get_ip(is_pre_valid);
+        if (proxy.empty()){
+        //
+        }
         string response = HEADER + proxy;
         clientmanager_pool[client_id] = get_now_time();
         write_some(sock, response);
