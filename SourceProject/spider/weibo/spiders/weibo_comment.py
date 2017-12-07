@@ -6,6 +6,7 @@ from scrapy import signals
 from scrapy import Request
 import json
 import warnings
+import redis
 from scrapy.utils.deprecate import method_is_overridden
 from .. import defaults, connection
 
@@ -17,6 +18,7 @@ url格式：https://m.weibo.cn/api/comments/show?id= [] &page= []
 class WeiboComment(RedisSpider):
     name = 'WeiboComment'
     redis_key = 'weibo_comment:start_urls'
+    dupefilter_key = 'weibo_comment:dupefilter'
 
     def __init__(self, *args, **kwargs):
         super(WeiboComment, self).__init__(*args, **kwargs)
@@ -37,7 +39,6 @@ class WeiboComment(RedisSpider):
             return
 
         if number > range_start:
-            print(response.body)
             item = WeiboCommentItem()
             item['html'] = response.body
             yield item
@@ -50,11 +51,30 @@ class WeiboComment(RedisSpider):
                 yield item
             '''
 
+        #向下扩展
+        try:
+            rd = redis.StrictRedis(host='localhost', port=6379)
+            i = 0
+            n = 1
+            while i < 2:
+                if number+n >= range_end:
+                    break
+                next_url = url_pre + str(number+n)
+                if rd.sadd(self.dupefilter_key, next_url) == 1:
+                    rd.lpush(self.redis_key, next_url)
+                    i += 1
+                n += 1
+        except:
+            print('redis error')
+
+        '''
         #如果小于范围开始，去到开始的地方
         if number < range_start:
             number = range_start
-
+        
+        yield Request('https://m.weibo.cn/api/comments/show?id=4160547165300149&page=10', callback=self.parse)
         #向下扩展
         for i in range(3):
             next_url = url_pre + str(number+i+1)
             yield Request(next_url, callback=self.parse)
+        '''

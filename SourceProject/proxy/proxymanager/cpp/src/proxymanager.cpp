@@ -20,6 +20,7 @@ ProxyManager::ProxyManager(int proxy_num,
 }
 
 int ProxyManager::init_proxypool(){
+    proxypool.clear();
     // init the proxypool
     set<string> pp;
     try{
@@ -44,7 +45,7 @@ int ProxyManager::init_proxypool(){
 
     set<string>::iterator it = pp.begin();
     for (; it != pp.end(); ++it){
-        proxypool.push(*it);
+        proxypool.push_back(*it);
     }
 
     return proxypool.size();
@@ -84,20 +85,30 @@ int ProxyManager::update_proxyfile(){
     return 0;
 }
 
-string ProxyManager::get_ip(bool is_pre_valid){
-    if (!is_pre_valid){
-        proxypool.pop();
-        if (proxypool.size() < proxy_min){
-#ifdef WEBSERVER_DEBUG
-            cerr << "update proxyfile..." << endl;
-#endif
-            update_proxyfile();
-            init_proxypool();
-        }
-    } else {
-        string proxy = proxypool.front();
-        proxypool.push(proxy);
-        proxypool.pop();
+string ProxyManager::get_ip(){
+    string proxy = proxypool.front();
+    proxypool.pop_front();
+    if (proxypool.size() < proxy_min){
+        update_proxyfile();
+        init_proxypool();
     }
-    return proxypool.front();
+    return proxy;
+}
+
+bool ProxyManager::set_ip(string proxy){
+    proxypool.push_back(proxy);
+    return true;   
+}
+
+int ProxyManager::get_proxypool_size(){
+    return proxypool.size();   
+}
+
+bool ProxyManager::proxypool_exists(string proxy){
+    auto it = proxypool.begin();
+    for (; it != proxypool.end(); ++it){
+        if (*it == proxy)
+            return true;    
+    }
+    return false;
 }

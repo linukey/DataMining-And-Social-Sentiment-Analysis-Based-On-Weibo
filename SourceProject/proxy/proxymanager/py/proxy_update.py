@@ -37,6 +37,21 @@ def get_proxy():
 
     return proxy
 
+def get_proxy1():
+    url = 'http://api.xdaili.cn/xdaili-api//greatRecharge/getGreatIp?spiderId=017e7316994043838df880610211e716&orderno=YZ201711225665Md3vgz&returnType=2&count=5'
+    proxy = []
+    try:
+        response = request.urlopen(url, timeout=10)
+        result = response.read().decode('utf-8')
+        jsondata = json.loads(result)
+        for data in jsondata['RESULT']:
+            proxy.append(data['ip'] + ":" + data['port'])
+    except Exception as e:
+        print('error')
+        print(e)
+
+    return proxy
+
 
 def ip_available(proxy):
     server = proxy
@@ -87,7 +102,7 @@ def update_proxyfile(proxy_num, proxy_path):
         if number > 10:
             break
         # new_proxy
-        new_proxy = get_proxy()
+        new_proxy = get_proxy1()
         for proxy in new_proxy:
             if len(proxy_pool) >= proxy_num:
                 break
@@ -111,4 +126,7 @@ def update_proxyfile(proxy_num, proxy_path):
     return len(proxy_pool)
 
 if __name__ == '__main__':
-    update_proxyfile(10, "../../proxyfile")
+    #update_proxyfile(10, "../../proxyfile")
+    #proxy = '27.28.233.108:7838'
+    #print(ip_available('http://' + proxy))
+    get_proxy1()

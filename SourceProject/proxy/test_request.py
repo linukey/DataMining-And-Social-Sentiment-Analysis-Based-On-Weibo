@@ -17,13 +17,15 @@ def get_ip(client_id):
 
 if __name__ == '__main__':
     ids = []
+
+    count = 1
     
-    for i in range(10):
+    for i in range(count):
         ids.append(uuid.uuid1())
     
-    for i in range(10):
+    for i in range(count):
         _thread.start_new_thread(get_ip, (ids[i],))
 
     while input():
-        for i in range(10):
+        for i in range(count):
             _thread.start_new_thread(get_ip, (ids[i],))

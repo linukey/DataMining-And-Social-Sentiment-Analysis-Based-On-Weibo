@@ -8,7 +8,7 @@ NEWSPIDER_MODULE = 'weibo.spiders'
 
 ROBOTSTXT_OBEY = False
 FEED_EXPORT_ENCODING = 'utf-8'
-DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 2
 DOWNLOAD_TIMEOUT = 15
 RETRY_ENABLED = False
 #HTTPERROR_ALLOWED_CODES = [403]
@@ -29,12 +29,15 @@ ITEM_PIPELINES = {
 }
 
 #scrapy_redis
-DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
-SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+#DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+DUPEFILTER_CLASS = "weibo.dupefilter.RFPDupeFilter"
+SCHEDULER = "weibo.scheduler.Scheduler"
 SCHEDULER_PERSIST = True
 
 REDIS_ITEMS_KEY = 'weibo:items'
 REDIS_ITEMS_SERIALIZER = 'json.dumps'
+# 控制spdier每次从redis里面读取url的个数
+REDIS_START_URLS_BATCH_SIZE = 5
 
 #REDIS_HOST = 'rs'
 #REDIS_PORT = '6379'

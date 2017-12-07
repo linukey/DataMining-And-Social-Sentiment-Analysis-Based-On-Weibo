@@ -20,11 +20,7 @@ class WeiboDownloadMiddleware(object):
             self._add_middleware(mw)
 
     def process_request(self, request, spider):
-        print("==================================================")
         proxy = proxy_request.get_ip(self.client_id)
-        print(self.client_id)
-        print(proxy)
-        print("==================================================")
         request.meta["proxy"]= "http://" + proxy
 
 class WeiboSpiderMiddleware(object):

@@ -23,8 +23,6 @@ namespace webserver{
 typedef std::shared_ptr<boost::asio::ip::tcp::socket> shared_socket;
 typedef boost::system::error_code e_code;
 
-#define WEBSERVER_DEBUG
-
 class WebServer{    
 public:
     WebServer();
@@ -33,9 +31,11 @@ public:
 private:
     boost::asio::ip::tcp::acceptor ACCEPTOR;
     const int buffer_size = 1024;
-    // key=client_id; value=ProxyManager
-    std::map<std::string, linukey::proxy::ProxyManager*> proxymanager_pool;
-    // key=client_id; value=live_time
+    //std::map<std::string, linukey::proxy::ProxyManager*> proxymanager_pool;
+    linukey::proxy::ProxyManager* proxymanager;
+    // key=client_id value=proxy
+    std::map<std::string, std::string> client_proxy_pool;
+    // key=client_id value=live_time
     std::map<std::string, time_t> clientmanager_pool;
 
 private:
@@ -51,6 +51,7 @@ private:
     void log(const std::string& message);
 
 public:
+    int all = 0;
     void run();
 };
 
