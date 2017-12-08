@@ -1,9 +1,9 @@
 FROM linukey/scrapy-redis
 
-COPY weibo.tgz /root
+COPY spider.tgz /root
 COPY run_crawl.sh /
 COPY pause_crawl.sh /
 
 RUN cd /root \
-&&  tar -xzvf weibo.tgz \
-&&  rm weibo.tgz \
+&&  tar -xzvf spider.tgz \
+&&  rm spider.tgz \

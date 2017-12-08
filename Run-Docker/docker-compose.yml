@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+
+    redis:
+        image: redis
+        container_name: redis
+        expose:
+            - 6379
+        tty: true
+
+    proxy:
+        image: proxy
+        container_name: proxy
+        expose:
+            - 8001
+        tty: true
+
+    spider-one:
+        build: ./spider/weibo_client
+        container_name: spider-one
+        tty: true
+        links:
+            - redis
+            - proxy

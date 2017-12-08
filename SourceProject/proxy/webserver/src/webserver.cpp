@@ -19,8 +19,8 @@ using namespace linukey::proxy;
 
 WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
     proxymanager = new ProxyManager(5, 2, 
-    "/home/linukey/WorkSpace/DataMiningOnWeibo/SourceProject/proxy/proxyfile",
-    "/home/linukey/WorkSpace/DataMiningOnWeibo/SourceProject/proxy/proxymanager/py");
+    "/proxy/proxyfile",
+    "/proxy/proxymanager/py");
 
     proxymanager->update_proxyfile();
     proxymanager->init_proxypool();

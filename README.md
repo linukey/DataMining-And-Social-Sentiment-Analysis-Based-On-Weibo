@@ -10,35 +10,28 @@
 
 ## Testing environment
 ```
-system: ubuntu-17.2.0
+system: ubuntu-16.0
 ```
 
 ## Project catalog:
 ```
-1.Docker: to create project by Docker
-2.Run: the script to run and control the project
-3.SourceProject: the crawler project
+1.Run-Docker: 使用docker完成项目的部署，并开展任务
+2.SourceProject: 项目源代码
+3.Github-Info: github项目展示的资料
 ```
 
 ## Project architecture
 > <img src="./GitHub-Info/img/project-architecture.png" />
 
 
-## current progress:
-```
----Initially completed weibo-comment spider
----Initially completed distributed spider base docker
-```
-
 ## Join Us
 ```
 ====================================================================================
 now, the project has just begun, if you want to join us, please contact me by flow:
 
-个人QQ:410282618
-QQ群:414507076
+QQ-self:410282618
+QQ-group:414507076
 Email:410282618@qq.com
-
 
 ---2017.11.11
 ====================================================================================

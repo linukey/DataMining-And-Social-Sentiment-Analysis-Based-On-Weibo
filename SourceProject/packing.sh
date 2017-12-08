@@ -1,5 +1,5 @@
 SOURCE_NAME="spider"
-PACK_NAME="weibo.tgz"
+PACK_NAME="spider.tgz"
 
 rm ${PACK_NAME} 2>/dev/null
 

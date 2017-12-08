@@ -39,8 +39,8 @@ REDIS_ITEMS_SERIALIZER = 'json.dumps'
 # 控制spdier每次从redis里面读取url的个数
 REDIS_START_URLS_BATCH_SIZE = 5
 
-#REDIS_HOST = 'rs'
-#REDIS_PORT = '6379'
+REDIS_HOST = 'rs'
+REDIS_PORT = '6379'
 
 #crawl_range
 RANGE_START = 1
