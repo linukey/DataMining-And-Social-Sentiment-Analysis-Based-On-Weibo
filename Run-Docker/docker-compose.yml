@@ -15,11 +15,31 @@ services:
         expose:
             - 8001
         tty: true
+        command: sh /start-server.sh
 
     spider-one:
         build: ./spider/weibo_client
         container_name: spider-one
         tty: true
+        command: sh /run_crawl.sh
+        links:
+            - redis
+            - proxy
+
+    spider-two:
+        build: ./spider/weibo_client
+        container_name: spider-two
+        tty: true
+        command: sh /run_crawl.sh
+        links:
+            - redis
+            - proxy
+
+    spider-three:
+        build: ./spider/weibo_client
+        container_name: spider-three
+        tty: true
+        command: sh /run_crawl.sh
         links:
             - redis
             - proxy

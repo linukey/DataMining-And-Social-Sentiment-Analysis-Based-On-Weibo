@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd /root/weibo
+cd /root/spider
 scrapy crawl WeiboComment
