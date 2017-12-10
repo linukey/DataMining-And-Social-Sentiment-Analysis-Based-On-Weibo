@@ -8,9 +8,8 @@ def get_ip(client_id):
     data = OrderedDict()
     data['client_id'] = str(client_id)
     data['exec'] = 'getproxy'
-    data['\n\n'] = '\n\n'
 
-    request = urllib.request.Request(url="http://localhost:8001", data=urllib.parse.urlencode(data).encode('utf-8'))
+    request = urllib.request.Request(url="http://localhost:8001/get_proxy", data=urllib.parse.urlencode(data).encode('utf-8'))
     response = urllib.request.urlopen(request)
     return response.read().decode('utf-8')
 

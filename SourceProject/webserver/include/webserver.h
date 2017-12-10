@@ -15,8 +15,9 @@
 #include <fstream>
 #include <map>
 #include <set>
-#include "../proxymanager/cpp/include/proxymanager.h"
 #include "request.h"
+#include "../proxymanager/cpp/include/proxymanager.h"
+#include "../spidermanager/include/spidermanager.h"
 
 namespace linukey{  
 namespace webserver{    
@@ -34,6 +35,7 @@ private:
     const int buffer_size = 1024;
 
     linukey::proxy::ProxyManager* proxymanager;
+    linukey::spidermanager::SpiderManager* spidermanager;
 
 private:
     void accept_handle(shared_socket sock, const e_code& err);

@@ -15,6 +15,7 @@
 #include <iterator>
 #include <cctype>
 #include <vector>
+#include <sstream>
 
 using namespace std;
 using namespace boost::asio;
@@ -22,16 +23,15 @@ using namespace linukey::webserver;
 using namespace linukey::webserver::request;
 using namespace linukey::proxy;
 using namespace linukey::utils;
+using namespace linukey::spidermanager;
 
 #define WEBSERVER_DEBUG
 
 WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
-    proxymanager = new ProxyManager(1, 1, 
-    "../proxymanager/proxyfile",
-    "../proxymanager/py");
-
+    proxymanager = new ProxyManager(1, 1, "../proxymanager/proxyfile", "../proxymanager/py");
     proxymanager->update_proxyfile();
     proxymanager->init_proxypool();
+    spidermanager = new SpiderManager();
 }
 
 void WebServer::run(){    
@@ -120,9 +120,28 @@ void WebServer::response(Request* req, shared_socket sock){
         string response = HEADER + proxy;
         write_some(sock, response);
     } else if (req->url == "/get_task"){
-        string html = "<html> <head> <title> crawl </title> </head> <body> hello world </body> </html>" ;
-        string response = HEADER + html;
+        fstream fin("html/index.html");
+        fin.seekg(0, ios::end);
+        int length = fin.tellg();
+        fin.seekg(0, ios::beg);
+        char* buff = new char[length];
+        fin.read(buff, length);
+        fin.close();
+        string response = HEADER + string(buff, length);
         write_some(sock, response);
+    } else if (req->url == "/update_spider"){
+        string client_id = req->datas["client_id"];
+        string spidername = req->datas["spidername"];
+        string item_cnt = req->datas["item_cnt"];
+        if (client_id.empty() || spidername.empty() || item_cnt.empty()){
+            write_some(sock, HEADER + "report fail!");
+        } else {
+            stringstream ss(item_cnt);
+            int cnt;
+            ss >> cnt;
+            spidermanager->update_spideritems(client_id, spidername, cnt);
+            write_some(sock, HEADER + "report succes!");
+        }
     }
 
     delete req;

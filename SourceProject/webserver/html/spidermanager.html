@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/3.8.5/echarts-en.common.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <style>
+    div{
+        width: 100%;
+        height: 600px;
+    }
+    </style>
+</head>
+
+<body>
+    <div id="my-chart">
+    </div>
+
+<script>
+    //$.get("http://localhost:8001/get_task", function(data){
+        var myChart = echarts.init(document.getElementById('my-chart'));
+        var option = {
+            title: {
+                text: 'spider运行监控',
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data:['spider-one','spider-two']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: 'none'
+                    },
+                    dataView: {readOnly: false},
+                    magicType: {type: ['line', 'bar']},
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            xAxis:  {
+                type: 'category',
+                boundaryGap: false,
+                data: ['1:01', '1:02', '1:03', '1:04', '1:05', '1:06'],
+            },
+            yAxis: {
+                type: 'value',
+                axisLabel: {
+                    formatter: '{value} 个'
+                }
+            },
+            series: [
+                {
+                    name:'spider-one',
+                    type:'line',
+                    data:[11, 11, 15, 13, 12, 13, 10],
+                },
+                {
+                    name:'spider-two',
+                    type:'line',
+                    data:[1, 2, 5, 3, 2, 0],
+                }
+            ]
+        };
+        myChart.setOption(option);
+    //})
+</script>  
+
+</body>
+</html>
