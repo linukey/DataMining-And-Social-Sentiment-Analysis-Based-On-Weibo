@@ -1,10 +1,12 @@
 #include "/usr/include/python3.5m/Python.h"
 #include "../include/proxymanager.h"
+#include "../../../utils/other_utils.h"
 #include <fstream>
 #include <set>
 
 using namespace std;
 using namespace linukey::proxy;
+using namespace linukey::utils;
 
 ProxyManager::ProxyManager(int proxy_num, 
              int proxy_min, 
@@ -85,13 +87,25 @@ int ProxyManager::update_proxyfile(){
     return 0;
 }
 
-string ProxyManager::get_ip(){
+string ProxyManager::get_ip(const string& client_id){
+    if (client_proxy_pool.count(client_id)){
+        double second = difftime(get_now_time(), clientmanager_pool[client_id]);
+        if (second < 30 && !proxypool_exists(client_proxy_pool[client_id])){
+            set_ip(client_proxy_pool[client_id]);
+        }
+    }
+
     string proxy = proxypool.front();
     proxypool.pop_front();
+
+    client_proxy_pool[client_id] = proxy;
+    clientmanager_pool[client_id] = get_now_time();
+
     if (proxypool.size() < proxy_min){
         update_proxyfile();
         init_proxypool();
     }
+
     return proxy;
 }
 

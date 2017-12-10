@@ -69,7 +69,6 @@ size_t WebServer::read_complete(Request* req, char *buff, const e_code& err, siz
     }
     string request(buff, size);
     if (req->method.empty()){
-        cout << "no method" << endl;
         if (request.find("\r\n\r\n") != string::npos){
             extract_request(request, req);
             if (to_lower(req->method) == "get") return false;
@@ -82,7 +81,6 @@ size_t WebServer::read_complete(Request* req, char *buff, const e_code& err, siz
             }
         } else return true;
     } else {
-        cout << "yes method" << endl;
         string data = request.substr(request.find("\r\n\r\n") + 4);    
         stringstream ss(req->headers[REQUEST_HEADERS[CONTENT_LENGTH]]);
         int content_length;
@@ -90,8 +88,7 @@ size_t WebServer::read_complete(Request* req, char *buff, const e_code& err, siz
         if (data.size() == content_length) {
             extract_datas(data, req->datas);
             return false;
-        }
-        else return true;
+        } else return true;
     }
 }
 
@@ -119,50 +116,16 @@ void WebServer::write_some(shared_socket sock, string message) {
 void WebServer::response(Request* req, shared_socket sock){
     if (req->url == "/get_proxy"){
         const string& client_id = req->datas["client_id"];
-        if (proxymanager->client_proxy_pool.count(client_id)){
-            // judge the pre proxy is valid or unvalid, if the second > 30, we thank the pre proxy is unvalid
-            double second = difftime(get_now_time(), proxymanager->clientmanager_pool[client_id]);
-            if (second > 30) {
-#ifdef WEBSERVER_DEBUG
-                cerr << "time > 30s, throw away pre proxy..." << endl;
-#endif
-            } else {
-                if (!proxymanager->proxypool_exists(proxymanager->client_proxy_pool[client_id]))
-                    proxymanager->set_ip(proxymanager->client_proxy_pool[client_id]);
-#ifdef WEBSERVER_DEBUG
-                cerr << "time: " << second << endl;
-#endif
-            }
-        }
-
-        string proxy = proxymanager->get_ip();
-        if (proxy.empty()){
-            //pass
-        }
+        string proxy = proxymanager->get_ip(client_id);
         string response = HEADER + proxy;
-        proxymanager->client_proxy_pool[client_id] = proxy;
-        proxymanager->clientmanager_pool[client_id] = get_now_time();
         write_some(sock, response);
-#ifdef WEBSERVER_DEBUG
-        cerr << "响应proxy: " << proxy << endl;
-#endif
-    
     } else if (req->url == "/get_task"){
-        string html = 
-        "<html>" \
-            "<head>" \
-                "<title> crawl </title>" \
-            "</head>" \
-            "<body>" \
-                "hello world" \
-            "</body>" \
-        "</html>" ;
+        string html = "<html> <head> <title> crawl </title> </head> <body> hello world </body> </html>" ;
         string response = HEADER + html;
         write_some(sock, response);
-#ifdef WEBSERVER_DEBUG
-        cerr << "响应task: " << response << endl;
-#endif
     }
+
+    delete req;
 }
 
 void WebServer::log(const string& message){

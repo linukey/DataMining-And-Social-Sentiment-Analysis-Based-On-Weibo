@@ -19,7 +19,6 @@ enum REQUEST_EXEC_{
     GET_PROXY = 0,
     GET_TASK,
 };
-
 static vector<string> REQUEST_EXEC = {  
     "getproxy", // get a proxy ip
     "gettask", // get crawl task state
@@ -29,7 +28,6 @@ enum REQUEST_METHOD_{
     GET = 0,
     POST
 };
-
 static vector<string> REQUEST_METHOD = {
     "get",
     "post"  
@@ -38,16 +36,13 @@ static vector<string> REQUEST_METHOD = {
 enum REQUEST_HEADERS_{
     CONTENT_LENGTH = 0,
 };
-
 static vector<string> REQUEST_HEADERS = {
     "content-length",  
 };
 
-static const string DATAEND = "%0A%0A=%0A%0A";
-
-static const string HEADER =   "HTTP/1.1 200 OK\r\n"\
-                                    "Connection: close\r\n"\
-                                    "\r\n";
+static const string HEADER = "HTTP/1.1 200 OK\r\n"\
+                            "Connection: close\r\n"\
+                            "\r\n";
 
 struct Request{
     Request(){}
