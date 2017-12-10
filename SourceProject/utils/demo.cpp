@@ -1,4 +1,5 @@
 #include "string_utils.h"
+#include "other_utils.h"
 
 using namespace linukey::utils;
 

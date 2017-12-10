@@ -26,6 +26,12 @@ public:
     std::string get_ip();
     bool set_ip(std::string proxy);
 	ProxyManager(int proxy_num, int proxy_min, std::string proxyfile_path, std::string py_model_path);
+
+    // key=client_id value=proxy
+    std::map<std::string, std::string> client_proxy_pool;
+    // key=client_id value=live_time
+    std::map<std::string, time_t> clientmanager_pool;
+
 };
 
 }// namespace proxy

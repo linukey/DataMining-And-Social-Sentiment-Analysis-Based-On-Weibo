@@ -15,7 +15,7 @@
 #include <fstream>
 #include <map>
 #include <set>
-#include "../../proxymanager/cpp/include/proxymanager.h"
+#include "../proxymanager/cpp/include/proxymanager.h"
 #include "request.h"
 
 namespace linukey{  
@@ -32,12 +32,8 @@ public:
 private:
     boost::asio::ip::tcp::acceptor ACCEPTOR;
     const int buffer_size = 1024;
-    //std::map<std::string, linukey::proxy::ProxyManager*> proxymanager_pool;
+
     linukey::proxy::ProxyManager* proxymanager;
-    // key=client_id value=proxy
-    std::map<std::string, std::string> client_proxy_pool;
-    // key=client_id value=live_time
-    std::map<std::string, time_t> clientmanager_pool;
 
 private:
     void accept_handle(shared_socket sock, const e_code& err);
@@ -45,14 +41,12 @@ private:
     void write_some(shared_socket sock, std::string message);
     size_t read_complete(linukey::webserver::request::Request* req, char *buff, const e_code& err, size_t size);
     void read_handle(linukey::webserver::request::Request* req, shared_socket sock, char *buff, const e_code& err, size_t size);
-    time_t get_now_time();
 
 private:
     void response(linukey::webserver::request::Request* req, shared_socket sock);
     void log(const std::string& message);
 
 public:
-    int all = 0;
     void run();
 };
 

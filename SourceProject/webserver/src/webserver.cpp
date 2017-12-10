@@ -6,7 +6,8 @@
 
 #include "../include/webserver.h"
 #include "../include/request.h"
-#include "../../../utils/string_utils.h"
+#include "../../utils/string_utils.h"
+#include "../../utils/other_utils.h"
 #include <fstream>
 #include <set>
 #include <string>
@@ -26,8 +27,8 @@ using namespace linukey::utils;
 
 WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
     proxymanager = new ProxyManager(1, 1, 
-    "./proxyfile",
-    "./proxymanager/py");
+    "../proxymanager/proxyfile",
+    "../proxymanager/py");
 
     proxymanager->update_proxyfile();
     proxymanager->init_proxypool();
@@ -37,10 +38,6 @@ void WebServer::run(){
     shared_socket sock(new ip::tcp::socket(SERVICE));
     ACCEPTOR.async_accept(*sock, boost::bind(&WebServer::accept_handle, this, sock, _1));
     SERVICE.run();
-}
-
-time_t WebServer::get_now_time(){
-    return time(NULL);
 }
 
 void WebServer::accept_handle(shared_socket sock, const e_code& err){
@@ -122,16 +119,16 @@ void WebServer::write_some(shared_socket sock, string message) {
 void WebServer::response(Request* req, shared_socket sock){
     if (req->url == "/get_proxy"){
         const string& client_id = req->datas["client_id"];
-        if (client_proxy_pool.count(client_id)){
+        if (proxymanager->client_proxy_pool.count(client_id)){
             // judge the pre proxy is valid or unvalid, if the second > 30, we thank the pre proxy is unvalid
-            double second = difftime(get_now_time(), clientmanager_pool[client_id]);
+            double second = difftime(get_now_time(), proxymanager->clientmanager_pool[client_id]);
             if (second > 30) {
 #ifdef WEBSERVER_DEBUG
                 cerr << "time > 30s, throw away pre proxy..." << endl;
 #endif
             } else {
-                if (!proxymanager->proxypool_exists(client_proxy_pool[client_id]))
-                    proxymanager->set_ip(client_proxy_pool[client_id]);
+                if (!proxymanager->proxypool_exists(proxymanager->client_proxy_pool[client_id]))
+                    proxymanager->set_ip(proxymanager->client_proxy_pool[client_id]);
 #ifdef WEBSERVER_DEBUG
                 cerr << "time: " << second << endl;
 #endif
@@ -143,8 +140,8 @@ void WebServer::response(Request* req, shared_socket sock){
             //pass
         }
         string response = HEADER + proxy;
-        client_proxy_pool[client_id] = proxy;
-        clientmanager_pool[client_id] = get_now_time();
+        proxymanager->client_proxy_pool[client_id] = proxy;
+        proxymanager->clientmanager_pool[client_id] = get_now_time();
         write_some(sock, response);
 #ifdef WEBSERVER_DEBUG
         cerr << "响应proxy: " << proxy << endl;

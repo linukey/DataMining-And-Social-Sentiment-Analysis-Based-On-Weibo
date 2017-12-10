@@ -4,13 +4,12 @@ sh ./clean.sh
 echo
 echo
 echo "\033[33m[========================building proxymanager======================]\033[0m"
-make -C proxymanager/cpp
+make -C ../proxymanager/cpp
 echo "\033[33m[===================================================================]\033[0m"
 echo
 echo
 echo "\033[33m[========================building webserver=========================]\033[0m"
-make -C webserver
-cp webserver/run_server .
+make
 echo "\033[33m[===================================================================]\033[0m"
 echo
 echo
