@@ -6,21 +6,28 @@
 
 #include "../include/webserver.h"
 #include "../include/request.h"
+#include "../../../utils/string_utils.h"
 #include <fstream>
 #include <set>
+#include <string>
+#include <algorithm>
+#include <iterator>
+#include <cctype>
+#include <vector>
 
 using namespace std;
 using namespace boost::asio;
 using namespace linukey::webserver;
 using namespace linukey::webserver::request;
 using namespace linukey::proxy;
+using namespace linukey::utils;
 
 #define WEBSERVER_DEBUG
 
 WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
-    proxymanager = new ProxyManager(5, 2, 
-    "/proxy/proxyfile",
-    "/proxy/proxymanager/py");
+    proxymanager = new ProxyManager(1, 1, 
+    "./proxyfile",
+    "./proxymanager/py");
 
     proxymanager->update_proxyfile();
     proxymanager->init_proxypool();
@@ -45,25 +52,60 @@ void WebServer::accept_handle(shared_socket sock, const e_code& err){
 #ifdef WEBSERVER_DEBUG
     ip::tcp::endpoint remote_ep = sock->remote_endpoint();
     ip::address remote_ad = remote_ep.address();
-    cerr << "主机: " << remote_ad.to_string() << " 请求proxy..." << endl;
+    cerr << "主机: " << remote_ad.to_string() << " 发出请求..." << endl;
 #endif
 
     char *buff = new char[buffer_size];       
+    Request* req = new Request();
     async_read(*sock, 
                buffer(buff, buffer_size), 
-               bind(&WebServer::read_complete, this, buff, _1, _2),
-               bind(&WebServer::read_handle, this, sock, buff, _1, _2));
+               bind(&WebServer::read_complete, this, req, buff, _1, _2),
+               bind(&WebServer::read_handle, this, req, sock, buff, _1, _2));
 
     run();
 }
 
-size_t WebServer::read_complete(char *buff, const e_code& err, size_t size){
-    if (err){
+size_t WebServer::read_complete(Request* req, char *buff, const e_code& err, size_t size){
+    if (err) {
         log("Fail");
         return 0;
     }
+    string request(buff, size);
+    if (req->method.empty()){
+        cout << "no method" << endl;
+        if (request.find("\r\n\r\n") != string::npos){
+            extract_request(request, req);
+            if (to_lower(req->method) == "get") return false;
+            else if (to_lower(req->method) == "post"){
+                stringstream ss(req->headers[REQUEST_HEADERS[CONTENT_LENGTH]]);
+                int content_length;
+                ss >> content_length;
+                if (content_length == 0) return false;
+                else return true;
+            }
+        } else return true;
+    } else {
+        cout << "yes method" << endl;
+        string data = request.substr(request.find("\r\n\r\n") + 4);    
+        stringstream ss(req->headers[REQUEST_HEADERS[CONTENT_LENGTH]]);
+        int content_length;
+        ss >> content_length;
+        if (data.size() == content_length) {
+            extract_datas(data, req->datas);
+            return false;
+        }
+        else return true;
+    }
+}
 
-    return string(buff, size).find(DATAEND) == string::npos;
+void WebServer::read_handle(Request* req, shared_socket sock, char *buff, const e_code& err, size_t size){
+    if (err){
+        log("Fail");
+        return;
+    }
+    delete[] buff;
+    response(req, sock);
+    sock->close();
 }
 
 void WebServer::write_handle(const e_code& err, size_t size){
@@ -77,54 +119,9 @@ void WebServer::write_some(shared_socket sock, string message) {
     sock->async_write_some(buffer(message), bind(&WebServer::write_handle, this, _1, _2));
 }
 
-void WebServer::read_handle(shared_socket sock, char *buff, const e_code& err, size_t size){
-    if (err){
-        log("Fail");
-        return;
-    }
-
-    // the dataend is %0A%0A=%0A%0A , plus & = 14
-    string request(buff, size-14);
-    delete[] buff;
-
-    // response to client
-    response(sock, request);
-
-	// http_request, must close
-    sock->close();
-}
-
-void WebServer::response(shared_socket sock, std::string request){  
-    // get the request data
-    vector<string> v_data;
-    string request_data = request.substr(request.find("\r\n\r\n") + 4);
-
-    // split data by '&'
-    if (request_data.length()){
-        size_t pos = string::npos;
-        size_t pre = 0;
-        while ((pos = request_data.find('&', pre+1)) != string::npos){ 
-            v_data.push_back(request_data.substr(pre, pos-pre));
-            pre = pos;
-        }
-        v_data.push_back(request_data.substr(pre+1));
-    }
-
-    // split data k-v by '='
-    string client_id;
-    string exec;
-    for (auto data : v_data){   
-        string key = data.substr(0, data.find('='));
-        string value = data.substr(data.find('=')+1);
-        if (key == "exec"){ 
-            exec = value;
-        } else if (key == "client_id") {    
-            client_id = value;
-        }
-    }
-
-    // response base request_exec
-    if (exec == REQUEST_EXEC[GET_PROXY]){
+void WebServer::response(Request* req, shared_socket sock){
+    if (req->url == "/get_proxy"){
+        const string& client_id = req->datas["client_id"];
         if (client_proxy_pool.count(client_id)){
             // judge the pre proxy is valid or unvalid, if the second > 30, we thank the pre proxy is unvalid
             double second = difftime(get_now_time(), clientmanager_pool[client_id]);
@@ -151,6 +148,22 @@ void WebServer::response(shared_socket sock, std::string request){
         write_some(sock, response);
 #ifdef WEBSERVER_DEBUG
         cerr << "响应proxy: " << proxy << endl;
+#endif
+    
+    } else if (req->url == "/get_task"){
+        string html = 
+        "<html>" \
+            "<head>" \
+                "<title> crawl </title>" \
+            "</head>" \
+            "<body>" \
+                "hello world" \
+            "</body>" \
+        "</html>" ;
+        string response = HEADER + html;
+        write_some(sock, response);
+#ifdef WEBSERVER_DEBUG
+        cerr << "响应task: " << response << endl;
 #endif
     }
 }
