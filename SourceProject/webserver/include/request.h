@@ -40,8 +40,9 @@ static vector<string> REQUEST_HEADERS = {
     "content-length",  
 };
 
-static const string HEADER = "HTTP/1.1 200 OK\r\n"\
-                            "Connection: close\r\n"\
+static const string HEADER = "HTTP/1.1 200 OK\r\n" \
+                            "Connection: close\r\n" \
+                            "Access-Control-Allow-Origin: *\r\n" \
                             "\r\n";
 
 struct Request{

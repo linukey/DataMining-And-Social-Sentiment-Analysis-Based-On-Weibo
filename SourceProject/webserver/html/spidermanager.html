@@ -18,7 +18,20 @@
     </div>
 
 <script>
-    //$.get("http://localhost:8001/get_task", function(data){
+    $.get("http://localhost:8001/get_task", function(data){
+        jsonData = JSON.parse(data)
+        for (var ckey in jsonData){
+            for (var skey in jsonData[ckey]["spiders"]){
+                for (var item in jsonData[ckey]["spiders"][skey]["items"]){
+                    var time = jsonData[ckey]["spiders"][skey]["items"][item]["time"]
+                    var value = jsonData[ckey]["spiders"][skey]["items"][item]["value"]
+                    console.log(time)
+                    console.log(value)
+                }
+            }
+        }
+
+        /*
         var myChart = echarts.init(document.getElementById('my-chart'));
         var data = [
             {name:'2016/12/18 6:38:08', value:['2016/12/18 6:38:08', 80]},
@@ -32,22 +45,6 @@
             },
             tooltip: {
                 trigger: 'axis',
-                /*
-                formatter: function (params) {
-                    params = params[0];
-                    console.log(params.value)
-                    console.log(params.data)
-                    var date = new Date(params.name);
-                    var result = date.getDate() + 
-                           '/' + 
-                          (date.getMonth() + 1) + 
-                           '/' + 
-                           date.getFullYear() + 
-                           ' : ' + 
-                           params.value[1];
-                    return result;
-                },
-                */
             },
             legend: {
                 data:['spider-one','spider-two']
@@ -78,11 +75,12 @@
                     name:'spider-one',
                     type:'line',
                     data:data
-                },
+                }
             ]
         };
         myChart.setOption(option);
-    //})
+        */
+    })
 </script>  
 
 </body>

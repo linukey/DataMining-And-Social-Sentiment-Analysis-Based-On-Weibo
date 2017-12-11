@@ -3,6 +3,7 @@ import urllib.request
 from collections import OrderedDict
 import uuid
 import time
+import random
 
 
 def report(client_id, spidername, time, cnt):
@@ -23,8 +24,19 @@ def get_task():
     return response.read().decode('utf-8')
 
 
+def simu_spider():
+    while True:
+        client = random.randint(1, 2)
+        spidername = random.randint(1, 3)
+        cnt = random.randint(1, 10)
+        t = str(time.strftime('%Y/%m/%d %H:%M:%S',time.localtime(time.time())))
+
+        print(report(client, spidername, t, cnt))
+        print(get_task())
+
+        time.sleep(5)
+
+
 if __name__ == '__main__':
-    time = str(time.strftime('%Y/%m/%d %H:%M:%S',time.localtime(time.time())))
-    print(time)
-    print(report('123', 'weibo', time, '1'))
-    print(get_task())
+    simu_spider()
+    #print(get_task())
