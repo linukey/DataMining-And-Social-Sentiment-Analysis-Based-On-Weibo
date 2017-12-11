@@ -120,26 +120,22 @@ void WebServer::response(Request* req, shared_socket sock){
         string response = HEADER + proxy;
         write_some(sock, response);
     } else if (req->url == "/get_task"){
-        fstream fin("html/index.html");
-        fin.seekg(0, ios::end);
-        int length = fin.tellg();
-        fin.seekg(0, ios::beg);
-        char* buff = new char[length];
-        fin.read(buff, length);
-        fin.close();
-        string response = HEADER + string(buff, length);
+        string task;
+        spidermanager->get_spideritems(task);
+        string response = HEADER + task;
         write_some(sock, response);
     } else if (req->url == "/update_spider"){
         string client_id = req->datas["client_id"];
         string spidername = req->datas["spidername"];
-        string item_cnt = req->datas["item_cnt"];
-        if (client_id.empty() || spidername.empty() || item_cnt.empty()){
+        string cnt = req->datas["cnt"];
+        string time = req->datas["time"];
+        if (client_id.empty() || spidername.empty() || cnt.empty() || time.empty()){
             write_some(sock, HEADER + "report fail!");
         } else {
-            stringstream ss(item_cnt);
+            stringstream ss(cnt);
             int cnt;
             ss >> cnt;
-            spidermanager->update_spideritems(client_id, spidername, cnt);
+            spidermanager->update_spideritems(client_id, spidername, time, cnt);
             write_some(sock, HEADER + "report succes!");
         }
     }

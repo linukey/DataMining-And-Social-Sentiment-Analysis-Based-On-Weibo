@@ -1,3 +1,6 @@
+#ifndef __OTHER_UTILS_H__
+#define __OTHER_UTILS_H__
+
 #include <iostream>
 #include <ctime>
 
@@ -12,3 +15,5 @@ time_t get_now_time(){
 
 }
 }
+
+#endif
