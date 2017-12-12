@@ -8,6 +8,7 @@
 #include "../include/request.h"
 #include "../../utils/string_utils.h"
 #include "../../utils/other_utils.h"
+#include "../../utils/file_utils.h"
 #include <fstream>
 #include <set>
 #include <string>
@@ -28,7 +29,7 @@ using namespace linukey::spidermanager;
 #define WEBSERVER_DEBUG
 
 WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
-    proxymanager = new ProxyManager(1, 1, "../proxymanager/proxyfile", "../proxymanager/py");
+    proxymanager = new ProxyManager(5, 1, "../proxymanager/proxyfile", "../proxymanager/py");
     proxymanager->update_proxyfile();
     proxymanager->init_proxypool();
     spidermanager = new SpiderManager();
@@ -137,6 +138,20 @@ void WebServer::response(Request* req, shared_socket sock){
             ss >> cnt;
             spidermanager->update_spideritems(client_id, spidername, time, cnt);
             write_some(sock, HEADER + "report succes!");
+        }
+
+    } else if (req->url == "/") {
+        string filename = "html/spiderManager.html";
+        string html = read_all(filename);
+        write_some(sock, HEADER + html);
+
+    } else {
+        string filename = "html" + req->url;
+        string html = read_all(filename);
+        if (html.empty()){
+            write_some(sock, HEADER + "403");
+        } else {
+            write_some(sock, HEADER + html);
         }
     }
 

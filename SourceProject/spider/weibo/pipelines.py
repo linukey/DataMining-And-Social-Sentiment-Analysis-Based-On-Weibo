@@ -2,8 +2,10 @@ from scrapy.utils.misc import load_object
 from scrapy.utils.serialize import ScrapyJSONEncoder
 from twisted.internet.threads import deferToThread
 from . import connection, defaults
-from spider_report import report
+from . import spider_report
 import json
+import uuid
+import time
 
 default_serialize = ScrapyJSONEncoder().encode
 
@@ -46,7 +48,7 @@ class WeiboPipeline(object):
 
         cnt = 1
         tm = str(time.strftime('%Y/%m/%d %H:%M:%S',time.localtime(time.time())))
-        report(self.client_id, "weibo_comment", tm, cnt)
+        spider_report.report(self.client_id, "weibo_comment", tm, cnt)
 
         return item
 

@@ -16,8 +16,8 @@
 #include <map>
 #include <set>
 #include "request.h"
-#include "../proxymanager/cpp/include/proxymanager.h"
-#include "../spidermanager/include/spidermanager.h"
+#include "../../proxymanager/cpp/include/proxymanager.h"
+#include "../../spidermanager/include/spidermanager.h"
 
 namespace linukey{  
 namespace webserver{    

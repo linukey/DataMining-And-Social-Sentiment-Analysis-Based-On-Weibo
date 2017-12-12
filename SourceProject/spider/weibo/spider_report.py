@@ -11,7 +11,7 @@ def report(client_id, spidername, time, cnt):
     data['time'] = time
     data['cnt'] = cnt
 
-    request = urllib.request.Request(url="http://localhost:8001/update_spider", data=urllib.parse.urlencode(data).encode('utf-8'))
+    request = urllib.request.Request(url="http://webserver:8001/update_spider", data=urllib.parse.urlencode(data).encode('utf-8'))
     response = urllib.request.urlopen(request)
     return response.read().decode('utf-8')
 

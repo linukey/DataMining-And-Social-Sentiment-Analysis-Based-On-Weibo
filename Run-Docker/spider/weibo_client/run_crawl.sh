@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd /root/spider
+cd /root/SourceProject/spider
 scrapy crawl WeiboComment
