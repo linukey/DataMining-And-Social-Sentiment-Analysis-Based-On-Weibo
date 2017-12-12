@@ -42,14 +42,6 @@ class WeiboComment(RedisSpider):
             item = WeiboCommentItem()
             item['html'] = response.body
             yield item
-            '''
-            jsonData = json.loads(response.body.decode('utf-8'))
-            item = WeiboCommentItem()
-            for data in jsonData['data']:
-                item['comment'] = data['text']
-                item['phone'] = data['source']
-                yield item
-            '''
 
         #向下扩展
         try:
@@ -66,15 +58,3 @@ class WeiboComment(RedisSpider):
                 n += 1
         except:
             print('redis error')
-
-        '''
-        #如果小于范围开始，去到开始的地方
-        if number < range_start:
-            number = range_start
-        
-        yield Request('https://m.weibo.cn/api/comments/show?id=4160547165300149&page=10', callback=self.parse)
-        #向下扩展
-        for i in range(3):
-            next_url = url_pre + str(number+i+1)
-            yield Request(next_url, callback=self.parse)
-        '''

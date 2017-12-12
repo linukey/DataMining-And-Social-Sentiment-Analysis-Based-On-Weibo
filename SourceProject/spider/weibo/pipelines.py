@@ -2,7 +2,7 @@ from scrapy.utils.misc import load_object
 from scrapy.utils.serialize import ScrapyJSONEncoder
 from twisted.internet.threads import deferToThread
 from . import connection, defaults
-from . import spider_report
+from spider_report import report
 import json
 
 default_serialize = ScrapyJSONEncoder().encode
@@ -14,6 +14,7 @@ class WeiboPipeline(object):
         self.server = server
         self.key = key
         self.serialize = serialize_func
+        self.client_id = uuid.uuid1()
 
     @classmethod
     def from_settings(cls, settings):
@@ -42,6 +43,11 @@ class WeiboPipeline(object):
         #data = self.serialize(item)
         data = item['html']
         self.server.rpush(key, data)
+
+        cnt = 1
+        tm = str(time.strftime('%Y/%m/%d %H:%M:%S',time.localtime(time.time())))
+        report(self.client_id, "weibo_comment", tm, cnt)
+
         return item
 
     def item_key(self, item, spider):

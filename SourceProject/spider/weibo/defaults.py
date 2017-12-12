@@ -15,7 +15,6 @@ REDIS_PARAMS = {
     #'retry_on_timeout': True,
     'encoding': 'utf-8',
     'url': 'http://redis:6379',
-    #'url':'http://localhost:6379'
 }
 
 SCHEDULER_QUEUE_KEY = '%(spider)s:requests'
