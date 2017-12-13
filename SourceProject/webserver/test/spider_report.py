@@ -31,7 +31,7 @@ def simu_spider():
         cnt = random.randint(1, 10)
         t = str(time.strftime('%Y/%m/%d %H:%M:%S',time.localtime(time.time())))
 
-        print(report(client, spidername, t, cnt))
+        print(report("1234567890", "weibo", t, cnt))
         print(get_task())
 
         time.sleep(5)

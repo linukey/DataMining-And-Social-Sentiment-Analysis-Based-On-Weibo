@@ -5,7 +5,7 @@
 */
 
 #include "../include/webserver.h"
-#include "../include/request.h"
+#include "../include/http.h"
 #include "../../utils/string_utils.h"
 #include "../../utils/other_utils.h"
 #include "../../utils/file_utils.h"
@@ -17,11 +17,12 @@
 #include <cctype>
 #include <vector>
 #include <sstream>
+#include <cstdio>
 
 using namespace std;
 using namespace boost::asio;
 using namespace linukey::webserver;
-using namespace linukey::webserver::request;
+using namespace linukey::webserver::http;
 using namespace linukey::proxy;
 using namespace linukey::utils;
 using namespace linukey::spidermanager;
@@ -29,7 +30,7 @@ using namespace linukey::spidermanager;
 #define WEBSERVER_DEBUG
 
 WebServer::WebServer() : ACCEPTOR(SERVICE, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 8001)) {
-    proxymanager = new ProxyManager(5, 1, "../proxymanager/proxyfile", "../proxymanager/py");
+    proxymanager = new ProxyManager(1, 1, "../proxymanager/proxyfile", "../proxymanager/py");
     proxymanager->update_proxyfile();
     proxymanager->init_proxypool();
     spidermanager = new SpiderManager();
@@ -43,18 +44,17 @@ void WebServer::run(){
 
 void WebServer::accept_handle(shared_socket sock, const e_code& err){
     if (err){
-        log("Fail");
+        log("accept Fail");
         return;
     }
 
-#ifdef WEBSERVER_DEBUG
-    ip::tcp::endpoint remote_ep = sock->remote_endpoint();
-    ip::address remote_ad = remote_ep.address();
-    cerr << "主机: " << remote_ad.to_string() << " 发出请求..." << endl;
-#endif
-
     char *buff = new char[buffer_size];       
     Request* req = new Request();
+
+    ip::tcp::endpoint remote_ep = sock->remote_endpoint();
+    ip::address remote_ad = remote_ep.address();
+    req->host = remote_ad.to_string();
+
     async_read(*sock, 
                buffer(buff, buffer_size), 
                bind(&WebServer::read_complete, this, req, buff, _1, _2),
@@ -65,7 +65,7 @@ void WebServer::accept_handle(shared_socket sock, const e_code& err){
 
 size_t WebServer::read_complete(Request* req, char *buff, const e_code& err, size_t size){
     if (err) {
-        log("Fail");
+        log("read_compelete Fail");
         return 0;
     }
     string request(buff, size);
@@ -95,17 +95,17 @@ size_t WebServer::read_complete(Request* req, char *buff, const e_code& err, siz
 
 void WebServer::read_handle(Request* req, shared_socket sock, char *buff, const e_code& err, size_t size){
     if (err){
-        log("Fail");
+        log("read Fail");
         return;
     }
     delete[] buff;
-    response(req, sock);
+    router(req, sock);
     sock->close();
 }
 
 void WebServer::write_handle(const e_code& err, size_t size){
     if (err){
-        log("Fail");
+        log("write Fail");
         return;
     }
 }
@@ -114,17 +114,22 @@ void WebServer::write_some(shared_socket sock, string message) {
     sock->async_write_some(buffer(message), bind(&WebServer::write_handle, this, _1, _2));
 }
 
-void WebServer::response(Request* req, shared_socket sock){
+void WebServer::router(Request* req, shared_socket sock){
+#ifdef WEBSERVER_DEBUG
+        printf("%s request %s \n", req->host.c_str(), req->url.c_str());
+#endif
     if (req->url == "/get_proxy"){
         const string& client_id = req->datas["client_id"];
         string proxy = proxymanager->get_ip(client_id);
         string response = HEADER + proxy;
         write_some(sock, response);
+
     } else if (req->url == "/get_task"){
         string task;
         spidermanager->get_spideritems(task);
         string response = HEADER + task;
         write_some(sock, response);
+
     } else if (req->url == "/update_spider"){
         string client_id = req->datas["client_id"];
         string spidername = req->datas["spidername"];
@@ -141,15 +146,15 @@ void WebServer::response(Request* req, shared_socket sock){
         }
 
     } else if (req->url == "/") {
-        string filename = "html/spiderManager.html";
+        string filename = "resource/spiderManager.html";
         string html = read_all(filename);
         write_some(sock, HEADER + html);
 
     } else {
-        string filename = "html" + req->url;
+        string filename = "resource" + req->url;
         string html = read_all(filename);
         if (html.empty()){
-            write_some(sock, HEADER + "403");
+            write_some(sock, HEADER + "404");
         } else {
             write_some(sock, HEADER + html);
         }

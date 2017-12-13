@@ -15,6 +15,7 @@ from .. import defaults, connection
 url格式：https://m.weibo.cn/api/comments/show?id= [] &page= []
 格式验证日期：2017.11.11
 '''
+
 class WeiboComment(RedisSpider):
     name = 'WeiboComment'
     redis_key = 'weibo_comment:start_urls'
@@ -45,7 +46,7 @@ class WeiboComment(RedisSpider):
 
         #向下扩展
         try:
-            rd = redis.StrictRedis(host='localhost', port=6379)
+            rd = redis.StrictRedis(host='redis', port=6379)
             i = 0
             n = 1
             while i < 2:

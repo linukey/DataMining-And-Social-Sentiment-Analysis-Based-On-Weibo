@@ -1,4 +1,5 @@
 function init(){
+    alert("111");
     $.get("http://localhost:8001/get_task", function(data){
         var datas = []
 

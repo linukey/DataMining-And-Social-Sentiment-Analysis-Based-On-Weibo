@@ -90,7 +90,7 @@ int ProxyManager::update_proxyfile(){
 string ProxyManager::get_ip(const string& client_id){
     if (client_proxy_pool.count(client_id)){
         double second = difftime(get_now_time(), clientmanager_pool[client_id]);
-        if (second < 30 && !proxypool_exists(client_proxy_pool[client_id])){
+        if (second < 10 && !proxypool_exists(client_proxy_pool[client_id])){
             set_ip(client_proxy_pool[client_id]);
         }
     }

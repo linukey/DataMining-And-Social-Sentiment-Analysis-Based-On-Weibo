@@ -10,10 +10,12 @@ services:
         tty: true
 
     webserver:
-        image: webserver
+        build: ./webserver
         container_name: webserver
         expose:
             - 8001
+        ports:
+            - "8001:8001"
         tty: true
         command: sh /start-server.sh
 
@@ -24,7 +26,7 @@ services:
         command: sh /run_crawl.sh
         links:
             - redis
-            - proxy
+            - webserver
 
     spider-two:
         build: ./spider/weibo_client
@@ -33,7 +35,7 @@ services:
         command: sh /run_crawl.sh
         links:
             - redis
-            - proxy
+            - webserver
 
     spider-three:
         build: ./spider/weibo_client
@@ -42,7 +44,7 @@ services:
         command: sh /run_crawl.sh
         links:
             - redis
-            - proxy
+            - webserver
 
     spider-four:
         build: ./spider/weibo_client
@@ -51,4 +53,13 @@ services:
         command: sh /run_crawl.sh
         links:
             - redis
-            - proxy
+            - webserver
+
+    spider-five:
+        build: ./spider/weibo_client
+        container_name: spider-five
+        tty: true
+        command: sh /run_crawl.sh
+        links:
+            - redis
+            - webserver

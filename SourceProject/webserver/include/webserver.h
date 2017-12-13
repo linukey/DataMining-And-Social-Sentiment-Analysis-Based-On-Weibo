@@ -15,7 +15,7 @@
 #include <fstream>
 #include <map>
 #include <set>
-#include "request.h"
+#include "http.h"
 #include "../../proxymanager/cpp/include/proxymanager.h"
 #include "../../spidermanager/include/spidermanager.h"
 
@@ -41,11 +41,11 @@ private:
     void accept_handle(shared_socket sock, const e_code& err);
     void write_handle(const e_code& err, size_t size);
     void write_some(shared_socket sock, std::string message);
-    size_t read_complete(linukey::webserver::request::Request* req, char *buff, const e_code& err, size_t size);
-    void read_handle(linukey::webserver::request::Request* req, shared_socket sock, char *buff, const e_code& err, size_t size);
+    size_t read_complete(linukey::webserver::http::Request* req, char *buff, const e_code& err, size_t size);
+    void read_handle(linukey::webserver::http::Request* req, shared_socket sock, char *buff, const e_code& err, size_t size);
 
 private:
-    void response(linukey::webserver::request::Request* req, shared_socket sock);
+    void router(linukey::webserver::http::Request* req, shared_socket sock);
     void log(const std::string& message);
 
 public:

@@ -23,6 +23,8 @@ system: ubuntu-16.0
 ## Project architecture
 > <img src="./GitHub-Info/img/project-architecture.png" />
 
+## current progress
+> <img src="./GitHub-Info/img/current.png" />
 
 ## Join Us
 ```

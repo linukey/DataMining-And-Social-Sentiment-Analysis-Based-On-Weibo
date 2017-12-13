@@ -37,11 +37,11 @@ SCHEDULER_PERSIST = True
 REDIS_ITEMS_KEY = 'weibo:items'
 REDIS_ITEMS_SERIALIZER = 'json.dumps'
 # 控制spdier每次从redis里面读取url的个数
-REDIS_START_URLS_BATCH_SIZE = 5
+REDIS_START_URLS_BATCH_SIZE = 2
 
 REDIS_HOST = 'redis'
 REDIS_PORT = '6379'
 
 #crawl_range
 RANGE_START = 1
-RANGE_END = 100
+RANGE_END = 300
