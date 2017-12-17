@@ -20,11 +20,10 @@ system: ubuntu-16.0
 3.Github-Info: github项目展示的资料
 ```
 
-## Project architecture
-> <img src="./GitHub-Info/img/project-architecture.png" />
-
 ## current progress
+> <img src="./GitHub-Info/img/project-architecture.png" />
 > <img src="./GitHub-Info/img/current.png" />
+
 
 ## Join Us
 ```
