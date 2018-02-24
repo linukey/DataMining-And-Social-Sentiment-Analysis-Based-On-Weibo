@@ -1,4 +1,4 @@
-TASK_NAME=vip_group
+TASK_NAME=weibo_comment
 
 HADOOP=/home/users/chenguodong02/influence/hadoop-client/hadoop/bin/hadoop
 INPUT=/user/ccdb/rd/chenguodong02/weibo/input
