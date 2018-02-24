@@ -1,29 +1,26 @@
-HADOOP_HOME=
-STREAMING_HOME=
+TASK_NAME=vip_group
 
-INPUT=/user/linukey/input
-OUTPUT=/user/linukey/output
+HADOOP=/home/users/chenguodong02/influence/hadoop-client/hadoop/bin/hadoop
+INPUT=/user/ccdb/rd/chenguodong02/weibo/input
+OUTPUT=/user/ccdb/rd/chenguodong02/weibo/output
 
-WORK_DIR=weibo_comment_task
+$HADOOP fs -rmr ${OUTPUT}
 
-${HADOOP_HOME}/bin/hadop fs -rmr ${OUTPUT}
-
-${HADOOP_HOME}/bin/hadoop jar ${STREAMING_HOME}/hadoop-streaming.jar \
-    -jobconf mapred.job.name="weibo_comment_extract" \
+$HADOOP streaming \
+    -input "${INPUT}" \
+	-output "${OUTPUT}" \
+    -jobconf mapred.job.name="$TASK_NAME" \
     -jobconf mapred.job.priority="HIGH" \
-    -jobconf mapred.job.map.capacity="2" \
-    -jobconf mapred.job.reduce.capacity="2" \
-    -jobconf mapred.map.tasks="2" \
-    -jobconf mapred.reduce.tasks="2" \
-
-    -file ${WORK_DIR}/map.sh \
-    -file ${WORK_DIR}/red.sh \
-    -file ${WORK_DIR}/weibocomment.sh \
-    -file ${WORK_DIR}/weibouser.sh \
-    -file ${WORK_DIR}/comment_strategy.sh \
-
-    -input ${INPUT} \
-    -output ${OUTPUT} \
-
-    -mapper "sh map.sh" \
-    -reducer "sh red.sh"
+    -jobconf mapred.max.reduce.failures.percent="10" \
+    -jobconf mapred.job.map.capacity="50" \
+    -jobconf mapred.map.tasks="50" \
+    -jobconf mapred.job.reduce.capacity="50" \
+    -jobconf mapred.reduce.tasks="50" \
+    -inputformat org.apache.hadoop.mapred.lib.NLineInputFormat \
+    -file comment_strategy.py \
+    -file weibocomment.py \
+    -file weibouser.py \
+    -file red.sh \
+    -cacheArchive /user/ccdb/rd/chenguodong02/python.tgz#. \
+    -mapper "cat" \
+    -reducer "red.sh"

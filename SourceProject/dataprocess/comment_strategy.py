@@ -1,5 +1,6 @@
-#!/usr/bin/python3.5
-
+import sys
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 import json
 from weibouser import WeiboUser
 from weibocomment import WeiboComment
@@ -28,11 +29,8 @@ def extractComments(data):
 
 
 if __name__ == '__main__':
-    file = open("weibo_comment_data")
-    for line in file.readlines():
-        comments = extractComments(line)
+    for line in sys.stdin:
+        comments = extractComments(line.split('\t')[1])
         for comment in comments:
             comment.toString()
             break
-        break
-

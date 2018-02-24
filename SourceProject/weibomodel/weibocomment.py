@@ -1,5 +1,3 @@
-#!/usr/bin/python3.5
-
 from weibouser import WeiboUser
 
 class WeiboComment:
