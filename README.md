@@ -15,24 +15,16 @@ system: ubuntu-16.0
 
 ## Project catalog:
 ```
-1.Run-Docker: 使用docker完成项目的部署，并开展任务
+1.Run-Docker: 使用docker-swarm和docker-compose作为分布式的解决方案
 2.SourceProject: 项目源代码
-3.Github-Info: github项目展示的资料
 ```
-
-## current progress
-> <img src="./GitHub-Info/img/project-architecture.png" />
-> <img src="./GitHub-Info/img/current.png" />
-
 
 ## Join Us
 ```
 ====================================================================================
-now, the project has just begun, if you want to join us, please contact me by flow:
-
 QQ-self:410282618
-QQ-group:414507076
 Email:410282618@qq.com
+数据挖掘兴趣群:414507076
 
 ---2017.11.11
 ====================================================================================
