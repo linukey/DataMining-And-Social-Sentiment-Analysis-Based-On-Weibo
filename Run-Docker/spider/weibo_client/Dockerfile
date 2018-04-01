@@ -2,7 +2,6 @@ FROM linukey/scrapy-redis
 
 COPY spider.tgz /root
 COPY run_crawl.sh /
-COPY pause_crawl.sh /
 
 RUN cd /root \
 &&  tar -xzvf spider.tgz \

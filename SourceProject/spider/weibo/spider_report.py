@@ -19,4 +19,3 @@ def report(client_id, spidername, time, cnt):
 
 if __name__ == '__main__':
     report('123', 'weibo', '1')
-

@@ -1,1 +1,1 @@
-../weibomodel/weibocomment.py
+weibomodel/weibocomment.py

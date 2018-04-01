@@ -7,37 +7,6 @@ import time
 import requests
 
 def get_proxy():
-	# this is my appid and sign, my ip has been added to the server whitelist
-	# so, i can use this appid and sign
-	# if you want to get your, to this url: https://www.showapi.com/api/lookPoint/22/1#price
-    showapi_appid = "49824"
-    showapi_sign = "6e1680fb4ab2468aac8e2c138b7b108a"
-
-    url = "http://route.showapi.com/22-1"
-    send_data = parse.urlencode([
-        ('showapi_appid', showapi_appid),
-        ('showapi_sign', showapi_sign)
-    ])
-
-    proxy = []
-    req = request.Request(url)
-    try:
-        response = request.urlopen(req, data=send_data.encode('utf-8'), timeout=10)
-        result = response.read().decode('utf-8')
-        jsondata = json.loads(result)
-        for info in jsondata["showapi_res_body"]["pagebean"]["contentlist"]:
-            speed = float(info['speed'])
-            if speed < 3:
-                ip = str(info['ip'])
-                port = str(info['port'])
-                proxy.append(ip + ":" + port)
-    
-    except Exception as e:
-        print('exception: ' + e)
-
-    return proxy
-
-def get_proxy1():
     url = 'http://api.xdaili.cn/xdaili-api//greatRecharge/getGreatIp?spiderId=017e7316994043838df880610211e716&orderno=YZ201711225665Md3vgz&returnType=2&count=5'
     proxy = []
     try:
@@ -102,7 +71,7 @@ def update_proxyfile(proxy_num, proxy_path):
         if number > 10:
             break
         # new_proxy
-        new_proxy = get_proxy1()
+        new_proxy = get_proxy()
         for proxy in new_proxy:
             if len(proxy_pool) >= proxy_num:
                 break
@@ -126,7 +95,4 @@ def update_proxyfile(proxy_num, proxy_path):
     return len(proxy_pool)
 
 if __name__ == '__main__':
-    #update_proxyfile(10, "../../proxyfile")
-    #proxy = '27.28.233.108:7838'
-    #print(ip_available('http://' + proxy))
-    get_proxy1()
+    print(get_proxy())

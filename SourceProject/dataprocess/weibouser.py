@@ -1,1 +1,1 @@
-../weibomodel/weibouser.py
+weibomodel/weibouser.py
