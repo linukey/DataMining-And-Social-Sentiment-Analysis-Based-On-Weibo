@@ -8,11 +8,6 @@
 4. Show the final result on the website
 ```
 
-## Testing environment
-```
-system: ubuntu-16.0
-```
-
 ## Project catalog:
 ```
 1.Run-Docker: 使用docker-swarm和docker-compose作为分布式的解决方案
