@@ -10,7 +10,7 @@
 
 ## Project catalog:
 ```
-1.Run-Docker: 使用docker-swarm和docker-compose作为分布式的解决方案
+1.Run-Docker: 使用docker-compose作为分布式的解决方案
 2.SourceProject: 项目源代码
 ```
 
